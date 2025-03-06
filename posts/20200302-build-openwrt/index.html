@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en"> <head><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.1.3"><title>Openwrt 折腾笔记</title><meta charset="utf-8"><link rel="canonical" href="https://revysr.github.io/posts/20200302-build-openwrt/"><meta name="robots" content="index, follow"><meta property="og:title" content="Openwrt 折腾笔记"><meta property="og:type" content="article"><meta property="og:image" content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg"><meta property="og:url" content="https://revysr.github.io/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg" name="twitter:image"><meta content="Openwrt 折腾笔记" name="twitter:title"><meta content="" name="twitter:description"><link rel="stylesheet" href="/_astro/about.NTXzv6ay.css" />
+<style>.copy-code{position:absolute;top:0;right:0;background-color:#3730a3;padding:.25rem .5rem;font-size:.75rem;line-height:1rem;border-radius:0 0 0 .25rem}.copy-code:hover{background-color:#312e81}
+</style><script type="module">const n="Copy",r=Array.from(document.querySelectorAll("pre"));for(let e of r){let t=document.createElement("div");t.style.position="relative";let o=document.createElement("button");o.className="copy-code",o.innerHTML=n,e.setAttribute("tabindex","0"),e.appendChild(o),e.parentNode?.insertBefore(t,e),t.appendChild(e),o.addEventListener("click",async()=>{await i(e,o)})}async function i(e,t){let c=e.querySelector("code")?.innerText;await navigator.clipboard.writeText(c??""),t.innerText="Code Copied",setTimeout(()=>{t.innerText=n},700)}
+</script></head> <body> <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a"> <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5"> <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center"> <hgroup un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 " un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left" un-flex="~ col gap-2.5" class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"> <a class="normal" href="/"> <h3 class="text-5 font-extrabold font-serif">Typography</h3> <h1 class="text-8 font-extrabold font-serif">活版印字</h1> </a> </hgroup> <nav class="text-center font-bold" un-flex="~ col gap-2"> <ul un-lg="flex-col items-start text-4" class="text-3.5" un-flex="~ row gap-2 justify-center"> <li> <a href="/posts/page/1">Posts</a> </li><li> <a href="/archive">Archive</a> </li><li> <a href="/categories">Categories</a> </li><li> <a href="/about">About</a> </li> </ul> <ul un-flex="~ row gap-1 justify-center"> <li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="github" class="icon i-mdi-github"></a> </li><li> <a href="/atom.xml" target="_blank" title="rss" class="icon i-mdi-rss"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="twitter" class="icon i-mdi-twitter"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="mastodon" class="icon i-mdi-mastodon"></a> </li> </ul> </nav> </header> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="max-lg:hidden"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">  <article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200302-build-openwrt/">Openwrt 折腾笔记</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-02</time> <a class="ml-2.5" href="/categories/Openwrt"># Openwrt</a><a class="ml-2.5" href="/categories/lean's lede"># lean&#39;s lede</a><a class="ml-2.5" href="/categories/x86"># x86</a><a class="ml-2.5" href="/categories/ACRH17"># ACRH17</a><a class="ml-2.5" href="/categories/phicomm-k1"># phicomm-k1</a> </div> </header>  <h3 id="参战硬件"><strong>参战硬件</strong></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="center">硬件</th><th align="center">价格</th><th align="center">购买方式</th></tr></thead><tbody><tr><td align="center">phicomm-k1</td><td align="center">—</td><td align="center">学长送的</td></tr><tr><td align="center">ASUS RT-ACRH17</td><td align="center">429</td><td align="center"><a href="https://item.jd.com/5186619.html">京东</a></td></tr><tr><td align="center">3855U 6口 工控路由</td><td align="center">820</td><td align="center"><a href="https://detail.tmall.com/item.htm?id=576827354736">淘宝</a></td></tr></tbody></table>
+<h3 id="phicomm-k1"><strong>phicomm-k1</strong></h3>
+<p>这个设备是一位不愿意透露姓名的学长送的
+他刷好了Pandavan固件
+这个设备后来还被我用来做交换机使用</p>
+<h4 id="pandavan"><strong>Pandavan</strong></h4>
+<p>最初我获得设备的时候就是这个固件 常用固件功能都有
+最初我需要这个设备的原因是要在路由器上跑Shadowsocks
+因为Android设备刷完<a href="https://opengapps.org/">OpenGApps</a>需要连接Google登陆账号激活
+路由器上跑代理是解决这个问题的办法
+后来因为这个设备接口都是百兆所以我买了ACRH17替换掉</p>
+<h4 id="openwrt"><strong>Openwrt</strong></h4>
+<p>这固件是后来我想折腾Openwrt固件时候才开始刷进去的
+我写了一个编译Dockerfile 把.config放入就可以直接docker build生产固件
+后来我还写了自动上传到github
+编译<a href="https://github.com/Rabenda/openwrt-phicomm-k1">Docker地址</a>
+后来发现travis集成不能编译超过40分钟 docker hub也不能超过一定时间
+在本地编了几次之后 编译机被拿走了 就没有在折腾了</p>
+<h4 id="pandorabox"><strong>PandoraBox</strong></h4>
+<p>之后为了做学校项目 一个基于mqtt的智能家居系统
+刷成了PandoraBox 就当作普通路由使用了</p>
+<h3 id="rt-acrh17"><strong>RT-ACRH17</strong></h3>
+<p>这个机器宣称有<code>160MHz</code> 所以我就寻找了相关固件
+这个机器配了一个USB3.0的接口 官方固件只支持2.0 所以需要第三方固件</p>
+<h4 id="merlin"><strong>Merlin</strong></h4>
+<p>第一次选择的是<a href="https://www.right.com.cn/forum/thread-708359-1-1.html">Merlin固件</a>
+正常来说是没有<a href="https://www.asuswrt-merlin.net">Merlin</a>
+因为ACRH17使用的是高通的芯片 没有Merlin才是正常情况
+Lean的固件有<code>160MHz</code> 但是实际上跑不上去</p>
+<h4 id="leans-lede"><strong>Lean’s LEDE</strong></h4>
+<p>因为没找到<code>160MHz</code>的固件 我就使用了Merlin固件作者的LEDE来扩展功能
+<a href="https://github.com/coolsnowwolf/lede">Lean’s LEDE</a>
+不选择<a href="https://openwrt.org/">Openwrt</a>官方的固件的原因是没有适配这个机型
+LEDE扩展功能真的好多 但是当时懒了 直接用别人编好的固件</p>
+<h4 id="pandorabox-1"><strong>PandoraBox</strong></h4>
+<p>第三次选择的是<a href="https://www.right.com.cn/forum/thread-318998-1-1.html">PandoraBox固件</a>
+原因是我还是想要<code>160MHz</code> 毕竟这是学长忽悠我买这个机器的原因之一
+这个固件我刷了两次之后 也刷了pb-boot和op-boot 刷了几次之后把ART分区数据弄丢了
+结果这机器就显示自己是RT-AC82U 实际上华硕根本没有这个产品
+ART分区丢失的话 信号就有问题了 所以在网上找了其他人的原厂固件和ART分区刷进去</p>
+<h4 id="offical"><strong>Offical</strong></h4>
+<p>后来完全刷回了官方固件 再后来就有了3855U软路由
+之后这个设备就用做了AP 放在客厅里发挥AP的作用</p>
+<p><img alt="rt-acrh17_show"  src="/_astro/rt-acrh17_show.HyR3pVxh_CVVFW.webp" width="1026" height="951" loading="lazy" decoding="async"></p>
+<h3 id="3855u"><strong>3855U</strong></h3>
+<p>这个硬件是在我购买了小米电视4A后产生的需求
+原本的ACRH17刷完lean’s LEDE的固件时候
+对于网关SSR有了解码速度的需求
+所以买了x86的软路由</p>
+<h4 id="硬件选择"><strong>硬件选择</strong></h4>
+<p>店家有D525/J1900/3855U/3865U选择
+不选D525的原因是这玩意超级老 没意思
+J1900淘汰的原因是我已经有一个J1900作为NAS使用了 不想再来一个
+3865U排除的原因是使用DDR4内存 没钱买内存
+使用3855U 我有空余DDR3内存和sata硬盘使用</p>
+<h4 id="esxiikuaileans-lede"><strong>ESXi+iKuai+lean’s LEDE</strong></h4>
+<p>最初这个方案是我看了很多软路由介绍的视频
+决定参考他们的方案
+决定LEDE作为主路由 iKuai作为旁路由
+加上一块480G的SATA3的SSD 一条16G的DDR3内存
+实际安装下来遇到了如下的问题</p>
+<ol>
+<li>iKuai宣称的多播我无法正确使用</li>
+<li>iKuai的行为管理功能我实际上是不需要的</li>
+<li>iKuai的64位版本需要4GB内存</li>
+<li>ESXi直通网卡的时候 LEDE内部的网卡和外部网卡编号无法对应</li>
+<li>iKuai/LEDE/ESXi需要公用一个网口做混杂模式 否则无法相通</li>
+<li>LEDE带的mwan3多播 我使用之后不会做负载分流</li>
+<li>LEDE拨号时候固件缺少ipv6相关组件 无法获取ipv6</li>
+</ol>
+<p>编号无法对应的问题我查看内部外部网卡MAC地址解决了
+因为我是用iKuai无法完成使用iKuai的目的
+所以我移除了iKuai虚拟机 只用LEDE
+又遇到了如下问题</p>
+<ol>
+<li>LEDE的固件是随便找的 可能有安全问题</li>
+<li>LEDE固件不能使用Openwrt的源</li>
+<li>LEDE固件因为是随便找的 结果我想要用某些功能无法完成</li>
+</ol>
+<p>种种问题 所以我决定移除这套方案</p>
+<h4 id="openwrt-1"><strong>Openwrt</strong></h4>
+<p>移除上一套方案后 想直接裸机使用Openwrt
+所以就更换了硬盘 使用msata接口的三星PM810 32G
+更换了一条海力士的4G内存条 这样才能物尽其用</p>
+<p>Openwrt有一个squashfs格式和ext4格式
+前者我在硬路由上使用 软路由我决定使用后者
+使用官方固件我成功获取了ipv6地址</p>
+<p>官方安装之后有如下问题：</p>
+<ol>
+<li>Openwrt默认安装完不会占用整个硬盘空间</li>
+<li>Openwrt提供v2ray的维护者并不打算支持v2rayN提供的订阅格式</li>
+<li>Openwrt提供的ss/v2ray的方案都没有lean提供的ssr-plus好用</li>
+</ol>
+<p>解决办法如下：</p>
+<ol>
+<li>第一个问题解决方案就是用Ubuntu live启动之后
+用fdisk删除存放分区 再重新建立分区
+起始的offset一致 不要抹去分区签名
+就可以完全扩容了</li>
+<li>第二个问题 无解 可以修改源码</li>
+<li>第三个问题 可以选择移植ssr-plus到Openwrt
+也可以选择使用其他的链接方案</li>
+</ol>
+<p>总之解决方案都是需要自己移植/编译
+所以我选择放弃</p>
+<h4 id="leans-lede-1"><strong>lean’s LEDE</strong></h4>
+<p>反正都需要编译了 索性就选择lean’s LEDE</p>
+<p>编译时候遇见的问题如下</p>
+<ul>
+<li>产生uefi启动的img并不能良好启动</li>
+<li>想直接扩容超过4G可能会超过U盘上fat32单个文件大小限制</li>
+<li>默认参数不支持ipv6 需要手工配置开启</li>
+</ul>
+<p>最终我选择了使用传统引导和分区为2Gb的方案
+然后再利用扩容的方法使其完整使用硬盘</p>
+<p>本来我在固件中选择编译了Docker
+结果我发现我这么多设备 我要用一个路由器去跑docker？
+再想到我学长的话 - <strong>『路由器核心设备，勿动』</strong>
+遂放弃并且移除相关功能</p>
+<p><img alt="lede_show"  src="/_astro/lede_show.dKn5AMTs_1bNb25.webp" width="1006" height="757" loading="lazy" decoding="async"></p>
+<p>我写了一个<a href="https://github.com/Rabenda/lean-lede-x64">相关脚本合集</a></p>
+<p>然后我写了一个<a href="https://raw.githubusercontent.com/Rabenda/lean-lede-x64/master/Dockerfile">Dockerfile</a>
+可以直接docker build生产LEDE-x64固件</p>
+<p>后来使用<a href="https://github.com/Rabenda/lean-lede-x64/actions">Github Actions</a>生成固件</p>
+<p>生成的 <code>img</code> 固件可以直接更新系统</p>
+<h3 id="结语"><strong>结语</strong></h3>
+<p><font size="6">少折腾路由器 越折腾你断网越久.jpg</font></p>
+<p>以上</p>  </article> <footer class="mt-5">  <p class="flex items-center gap-2"> <span class="inline-flex items-center"> <i class="i-mdi-chevron-double-left icon"></i> <a href="/posts/20200303-nas/">Previous post: NAS 折腾笔记</a> </span> <span class="inline-flex items-center"> <a href="/posts/20191029-surge-mac-for-v2ray/">Next post: Surge mac for v2ray</a> <i class="i-mdi-chevron-double-right icon"></i> </span> </p> </footer> <!-- <footer class="mt-5">
+  <p class="mb-2.5">{t('page_number', page.currentPage)} / {t('page_count', page.lastPage)}</p>
+  <p class="flex items-center gap-2">
+    <span class="inline-flex items-center">
+      <i class="i-mdi-chevron-double-left icon"></i>
+      {page.url.prev ? <a href={page.url.prev}> {t('prev')} </a> : <span>{t('prev')}</span>}
+    </span>
+
+    <span class="inline-flex items-center">
+      {page.url.next ? <a href={page.url.next}>{t('next')}</a> : <span>{t('next')}</span>}
+      <i class="i-mdi-chevron-double-right icon"></i>
+    </span>
+  </p>
+</footer> -->  </main> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="lg:hidden p-7.5"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> </body></html>  

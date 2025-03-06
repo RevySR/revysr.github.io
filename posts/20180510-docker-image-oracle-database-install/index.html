@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="en"> <head><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.1.3"><title>Oracle数据库运行在Docker里的相关问题</title><meta charset="utf-8"><link rel="canonical" href="https://revysr.github.io/posts/20180510-docker-image-oracle-database-install/"><meta name="robots" content="index, follow"><meta property="og:title" content="Oracle数据库运行在Docker里的相关问题"><meta property="og:type" content="article"><meta property="og:image" content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg"><meta property="og:url" content="https://revysr.github.io/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg" name="twitter:image"><meta content="Oracle数据库运行在Docker里的相关问题" name="twitter:title"><meta content="" name="twitter:description"><link rel="stylesheet" href="/_astro/about.NTXzv6ay.css" />
+<style>.copy-code{position:absolute;top:0;right:0;background-color:#3730a3;padding:.25rem .5rem;font-size:.75rem;line-height:1rem;border-radius:0 0 0 .25rem}.copy-code:hover{background-color:#312e81}
+</style><script type="module">const n="Copy",r=Array.from(document.querySelectorAll("pre"));for(let e of r){let t=document.createElement("div");t.style.position="relative";let o=document.createElement("button");o.className="copy-code",o.innerHTML=n,e.setAttribute("tabindex","0"),e.appendChild(o),e.parentNode?.insertBefore(t,e),t.appendChild(e),o.addEventListener("click",async()=>{await i(e,o)})}async function i(e,t){let c=e.querySelector("code")?.innerText;await navigator.clipboard.writeText(c??""),t.innerText="Code Copied",setTimeout(()=>{t.innerText=n},700)}
+</script></head> <body> <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a"> <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5"> <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center"> <hgroup un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 " un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left" un-flex="~ col gap-2.5" class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"> <a class="normal" href="/"> <h3 class="text-5 font-extrabold font-serif">Typography</h3> <h1 class="text-8 font-extrabold font-serif">活版印字</h1> </a> </hgroup> <nav class="text-center font-bold" un-flex="~ col gap-2"> <ul un-lg="flex-col items-start text-4" class="text-3.5" un-flex="~ row gap-2 justify-center"> <li> <a href="/posts/page/1">Posts</a> </li><li> <a href="/archive">Archive</a> </li><li> <a href="/categories">Categories</a> </li><li> <a href="/about">About</a> </li> </ul> <ul un-flex="~ row gap-1 justify-center"> <li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="github" class="icon i-mdi-github"></a> </li><li> <a href="/atom.xml" target="_blank" title="rss" class="icon i-mdi-rss"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="twitter" class="icon i-mdi-twitter"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="mastodon" class="icon i-mdi-mastodon"></a> </li> </ul> </nav> </header> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="max-lg:hidden"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">  <article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20180510-docker-image-oracle-database-install/">Oracle数据库运行在Docker里的相关问题</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2018-05-10</time> <a class="ml-2.5" href="/categories/docker"># docker</a><a class="ml-2.5" href="/categories/oracle"># oracle</a> </div> </header>  <p><a href="https://github.com/MaksymBilenko/docker-oracle-12c">MaksymBilenko/docker-oracle-12c</a>
+以上是oracle-database 12c的Docker镜像 使用说明在项目中</p>
+<p><a href="https://en.wikipedia.org/wiki/Docker_(software)">Docker</a> 镜像适应于 <a href="https://en.wikipedia.org/wiki/Linux">Linux</a> / <a href="https://en.wikipedia.org/wiki/MacOS">macOS</a> / <a href="https://en.wikipedia.org/wiki/Microsoft_Windows">Windows</a></p>
+<h3 id="docker-oracle-database-image-下载">Docker Oracle Database Image 下载</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> pull</span><span style="color:#9ECBFF"> sath89/oracle-12c</span></span></code></pre>
+<h3 id="简略使用方法">简略使用方法:</h3>
+<p>以下内容需要在宿主机(host)输入</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 创建oracle-database容器实例并且在后台以守护进程运行 (一次性命令 删除实例后可以重新运行生成新实例)</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> oracle_database</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> -p</span><span style="color:#79B8FF"> 8080</span><span style="color:#9ECBFF">:8080</span><span style="color:#79B8FF"> -p</span><span style="color:#79B8FF"> 1521</span><span style="color:#9ECBFF">:1521</span><span style="color:#9ECBFF"> sath89/oracle-12c</span></span>
+<span class="line"><span style="color:#6A737D"># 进入docker-oracle-database容器终端</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> exec</span><span style="color:#79B8FF"> -it</span><span style="color:#9ECBFF"> oracle_database</span><span style="color:#9ECBFF"> /bin/bash</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#6A737D"># 终止运行docker-oracle-database容器</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> stop</span><span style="color:#9ECBFF"> oracle_database</span></span>
+<span class="line"><span style="color:#6A737D"># 启动运行docker-oracle-database容器</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> start</span><span style="color:#9ECBFF"> oracle_database</span></span>
+<span class="line"><span style="color:#6A737D"># 重新启动docker-oracle-database容器</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> restart</span><span style="color:#9ECBFF"> oracle_database</span></span>
+<span class="line"><span style="color:#6A737D"># 删除此docker-oracle-database容器实例</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> rm</span><span style="color:#9ECBFF"> oracle_database</span></span></code></pre>
+<h3 id="万能帮助方法">万能帮助方法:</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#79B8FF"> --help</span></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#E1E4E8"> [COMMAND] --help</span></span></code></pre>
+<h3 id="获取更多关于docker的信息">获取更多关于docker的信息</h3>
+<ul>
+<li><a href="https://docs.docker.com/">点击前往 Docker Docs</a></li>
+<li><a href="http://www.runoob.com/docker/docker-tutorial.html">菜鸟教程的 Docker 教程</a></li>
+</ul>
+<h4 id="for-windows-usersfor-neusofts-students">For Windows users：(for neusoft’s students)</h4>
+<p><a href="http://www.runoob.com/docker/windows-docker-install.html">请点击阅读 如何在Windows上安装Docker</a></p>
+<h4 id="for-windows-10-users">For Windows 10 users：</h4>
+<p>— Update: 2020.12.29 —</p>
+<p>Docker已经可以和VMware/Virtualbox共存</p>
+<hr>
+<p>TL;DR 总之就是你开启了Docker 可能会与你的大数据项目的虚拟机不兼容</p>
+<p>使用Docker时候可能会修改你的Windows虚拟架构 启动组件 <a href="https://en.wikipedia.org/wiki/Hyper-V">Hyper-V</a>
+『Warning』启动Hyper-V组件会使你的Windows也虚拟在Hyper-V架构上面
+可能会有部分性能损失（估计在10%-20%左右）
+而且会和现有的半虚拟化冲突（简而言之就是开启之后无法使用 <a href="https://en.wikipedia.org/wiki/VMware_Workstation">VMware</a> &#x26; <a href="https://en.wikipedia.org/wiki/VirtualBox">VirtualBox</a>）
+（不建议VirtualBox启动软件虚拟化 因为那样虚拟机的性能极低 而且无法虚拟64位系统）</p>
+<p>2020/03/03 更新：
+在未来的<a href="https://docs.microsoft.com/en-us/windows-insider/at-home/whats-new-wip-at-home-20h1">Windows 10 20H1</a>/<a href="https://blogs.vmware.com/workstation/2020/01/vmware-workstation-tech-preview-20h1.html">VMware 20H1</a>/<a href="https://forums.virtualbox.org/viewtopic.php?f=6&#x26;t=90853">VirtualBox 6.0</a> Hyper-V与其他虚拟化软件相兼容</p>
+<h3 id="以下是faq">以下是FAQ:</h3>
+<h4 id="docker-下载">Docker 下载</h4>
+<p><a href="https://www.docker.com/community-edition">Docker-ce版本下载</a></p>
+<h4 id="docker-安装">Docker 安装</h4>
+<p>请选择对应系统安装教程</p>
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="center"><a href="http://www.runoob.com/docker/windows-docker-install.html">Windows安装</a></th><th align="center"><a href="http://www.runoob.com/docker/macos-docker-install.html">macOS安装</a></th><th align="center"><a href="http://www.runoob.com/docker/ubuntu-docker-install.html">Ubuntu安装</a></th><th align="center"><a href="http://www.runoob.com/docker/centos-docker-install.html">CentOS安装</a></th></tr></thead></table>
+<h4 id="docker-image下载速度特别慢">Docker-image下载速度特别慢？！</h4>
+<p>以下三种方法可选择</p>
+<ul>
+<li><a href="https://www.jianshu.com/p/26d0ebd86673">为 Docker 设置代理</a></li>
+<li><a href="https://github.com/rofl0r/proxychains-ng">proxychains-ng 强制代理软件</a></li>
+<li><a href="https://yq.aliyun.com/articles/29941">aliyun mirrors 镜像加速</a></li>
+</ul>
+<h4 id="运行完命令-无反应">运行完命令 无反应</h4>
+<p>运行完<code>docker run --name oracle_database -d -p 8080:8080 -p 1521:1521 sath89/oracle-12c</code> 就返回一串随机数</p>
+<ul>
+<li>首先你需要知道 <code>-d</code> 参数的意思是后台运行 所以需要用 <code>docker exec</code> 进入容器</li>
+<li>执行 <code>docker exec -it oracle_database /bin/bash</code> 就可以进入容器终端了</li>
+<li>此时执行 <code>sqlplus</code> 就可以连接数据库了</li>
+</ul>
+<h4 id="oracle数据库账号密码是多少">Oracle数据库账号密码是多少？</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="center">Account</th><th align="center">Password</th></tr></thead><tbody><tr><td align="center"><code>SYSTEM</code></td><td align="center"><code>oracle</code></td></tr><tr><td align="center"><code>SYS</code></td><td align="center"><code>oracle</code></td></tr><tr><td align="center"><code>SCOTT</code></td><td align="center"><code>tiger</code></td></tr></tbody></table>
+<h4 id="怎么退出容器终端啊">怎么退出容器终端啊</h4>
+<p>在终端输入命令<code>exit</code> 按Enter就可以退出终端了</p>
+<h4 id="如何终止容器的运行">如何终止容器的运行？</h4>
+<p>在终端里输入 <code>docker stop oracle_database</code> 就可以终止容器运行了</p>  </article> <footer class="mt-5">  <p class="flex items-center gap-2"> <span class="inline-flex items-center"> <i class="i-mdi-chevron-double-left icon"></i> <a href="/posts/20181214-install-freebsd/">Previous post: 个人的FreeBSD的折腾笔记</a> </span> <span class="inline-flex items-center"> <a href="/posts/20180510-ubuntu-17-10-sunpinyin-shuangpin/">Next post: sunpinyin双拼问题</a> <i class="i-mdi-chevron-double-right icon"></i> </span> </p> </footer> <!-- <footer class="mt-5">
+  <p class="mb-2.5">{t('page_number', page.currentPage)} / {t('page_count', page.lastPage)}</p>
+  <p class="flex items-center gap-2">
+    <span class="inline-flex items-center">
+      <i class="i-mdi-chevron-double-left icon"></i>
+      {page.url.prev ? <a href={page.url.prev}> {t('prev')} </a> : <span>{t('prev')}</span>}
+    </span>
+
+    <span class="inline-flex items-center">
+      {page.url.next ? <a href={page.url.next}>{t('next')}</a> : <span>{t('next')}</span>}
+      <i class="i-mdi-chevron-double-right icon"></i>
+    </span>
+  </p>
+</footer> -->  </main> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="lg:hidden p-7.5"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> </body></html>  

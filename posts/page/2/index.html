@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="en"> <head><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.1.3"><title>活版印字</title><meta charset="utf-8"><link rel="canonical" href="https://revysr.github.io/posts/page/2/"><meta name="description" content="Rediscory the beauty of typography"><meta name="robots" content="index, follow"><meta property="og:title" content="活版印字"><meta property="og:type" content="article"><meta property="og:image" content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg"><meta property="og:url" content="https://revysr.github.io/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg" name="twitter:image"><meta content="活版印字" name="twitter:title"><meta content="Rediscory the beauty of typography" name="twitter:description"><link rel="stylesheet" href="/_astro/about.NTXzv6ay.css" /></head> <body> <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a"> <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5"> <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center"> <hgroup un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 " un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left" un-flex="~ col gap-2.5" class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"> <a class="normal" href="/"> <h3 class="text-5 font-extrabold font-serif">Typography</h3> <h1 class="text-8 font-extrabold font-serif">活版印字</h1> </a> </hgroup> <nav class="text-center font-bold" un-flex="~ col gap-2"> <ul un-lg="flex-col items-start text-4" class="text-3.5" un-flex="~ row gap-2 justify-center"> <li> <a href="/posts/page/1">Posts</a> </li><li> <a href="/archive">Archive</a> </li><li> <a href="/categories">Categories</a> </li><li> <a href="/about">About</a> </li> </ul> <ul un-flex="~ row gap-1 justify-center"> <li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="github" class="icon i-mdi-github"></a> </li><li> <a href="/atom.xml" target="_blank" title="rss" class="icon i-mdi-rss"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="twitter" class="icon i-mdi-twitter"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="mastodon" class="icon i-mdi-mastodon"></a> </li> </ul> </nav> </header> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="max-lg:hidden"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">  <section contain-layout un-flex="~ col gap-7.5"> <article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200316-wsl-linux/">WSL2的Linux安装与使用</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-16</time> <a class="ml-2.5" href="/categories/linux"># linux</a><a class="ml-2.5" href="/categories/Ubuntu"># Ubuntu</a><a class="ml-2.5" href="/categories/Gentoo"># Gentoo</a><a class="ml-2.5" href="/categories/Hyper-V"># Hyper-V</a><a class="ml-2.5" href="/categories/wsl"># wsl</a> </div> </header>  <p class="line-clamp-4">开宗明义
+&amp;lt;font size=6&amp;gt;不推荐wsl1转制成wsl2&amp;lt;/font&amp;gt;
+原因就是再转制的过程中 文件的mode属性会丢失
+也不推荐相互转 因为文件系统不同 所以属性存储的位置是不一样的
+依赖条件
+
+Windows 10 build 18917 及其更高版本
+Windows Subsystem for Linux 组件开启
+Virual Machine Platform 组件开启
+
+先行设置
+# 开启 Windows Subsystem for Linux 
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+# 开启 Virual Machine Platform
+dism.exe /online /enable-fea</p>  </article><article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200304-gentoo/">Gentoo 安装笔记</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-04</time> <a class="ml-2.5" href="/categories/Gentoo"># Gentoo</a><a class="ml-2.5" href="/categories/OS"># OS</a><a class="ml-2.5" href="/categories/Linux"># Linux</a><a class="ml-2.5" href="/categories/Hyper-V"># Hyper-V</a> </div> </header>  <p class="line-clamp-4">开宗明义
+&amp;lt;font size=6&amp;gt;Linux 就应该不要选择使用桌面&amp;lt;/font&amp;gt;
+不选择桌面的原因
+可以节省你大量折腾的时间 包括但不限于以下内容
+GNOME 3/KDE 5/Xfce/Mate 等桌面的选择、配置、美化 (我有强迫症)
+Windows 上的工具/软件的替代品 (QQ/Wechat etc.)
+安装环境与分区方案
+Windows 10 1909 的 Hyper-V
+Ubuntu 18.04.3
+以下操作都假设在 root 用户下操作
+Hyper-V 资源分配方案
+
+
+
+资源
+--
+
+
+
+
+cpu
+2 core
+
+
+ram
+4 GB
+
+
+网卡
+Hyper-V 虚拟网卡(桥接)
+
+
+硬盘
+光威悍将 480GB(直通)
+
+
+
+选择桥接是因为我想把设备都放在一个子网下面
+这个方案适合不移动的台式机 笔记本应该选择 NAT 方案
+硬盘直通的原因是不想占用硬</p>  </article><article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200303-nas/">NAS 折腾笔记</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-03</time> <a class="ml-2.5" href="/categories/NAS"># NAS</a><a class="ml-2.5" href="/categories/Linux"># Linux</a><a class="ml-2.5" href="/categories/FreeBSD"># FreeBSD</a><a class="ml-2.5" href="/categories/DSM"># DSM</a><a class="ml-2.5" href="/categories/FreeNAS"># FreeNAS</a><a class="ml-2.5" href="/categories/J1900"># J1900</a> </div> </header>  <p class="line-clamp-4">什么是NAS
+網路附加儲存（英語：Network Attached Storage，缩写：NAS），是一種專門的資料儲存技術的名稱，它可以直接連接在電腦網路上面，對異質網路使用者提供了集中式資料存取服務。
+为什么使用NAS
+
+想要保存一些数据和备份系统(多一层保险)
+备份windows/linux/macOS
+运行一些低功耗后台服务
+
+例如KMS激活服务
+虚拟机做轻量级旁网关
+
+
+
+现在持有的机种
+
+
+
+机种
+盘位
+
+
+
+
+Synology DS1821+
+8
+
+
+Synology DS218+
+4
+
+
+J1900
+4
+
+
+
+NAS 系统
+成品 NAS 系统
+Synology 出品的 DSM (俗称群晖)
+
+
+
+专门 NAS 系统
+FreeNAS/TrueNAS CORE
+// TODO
+UnRaid
+// TODO
+TrueNAS SCALE
+// TODO
+现在正在服役的 NAS 机器</p>  </article><article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200302-build-openwrt/">Openwrt 折腾笔记</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-02</time> <a class="ml-2.5" href="/categories/Openwrt"># Openwrt</a><a class="ml-2.5" href="/categories/lean's lede"># lean&#39;s lede</a><a class="ml-2.5" href="/categories/x86"># x86</a><a class="ml-2.5" href="/categories/ACRH17"># ACRH17</a><a class="ml-2.5" href="/categories/phicomm-k1"># phicomm-k1</a> </div> </header>  <p class="line-clamp-4">参战硬件
+
+
+
+硬件
+价格
+购买方式
+
+
+
+
+phicomm-k1
+--
+学长送的
+
+
+ASUS RT-ACRH17
+429
+京东
+
+
+3855U 6口 工控路由
+820
+淘宝
+
+
+
+phicomm-k1
+这个设备是一位不愿意透露姓名的学长送的
+他刷好了Pandavan固件
+这个设备后来还被我用来做交换机使用
+Pandavan
+最初我获得设备的时候就是这个固件 常用固件功能都有
+最初我需要这个设备的原因是要在路由器上跑Shadowsocks
+因为Android设备刷完OpenGApps需要连接Google登陆账号激活
+路由器上跑代理是解决这个问题的办法
+后来因为这个设备接口都是百兆所以我买了ACRH17替换掉
+Openwrt
+这固件是后来我想折腾Openwrt固件时候才开始刷进去的
+我写了一个编译Dockerfile 把.config放入就可以直接docker build生产固件
+后来我还</p>  </article><article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20191029-surge-mac-for-v2ray/">Surge mac for v2ray</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2019-10-29</time> <a class="ml-2.5" href="/categories/v2ray"># v2ray</a><a class="ml-2.5" href="/categories/surge"># surge</a> </div> </header>  <p class="line-clamp-4">SSR
+之前在朋友家里被骗合购Surge for mac 此君说surge支持SSR
+然后我就买了 发现想要支持ssr需要使用surge的External Proxy Provider
+这个功能按下暂且不表
+v2ray
+又查了一下v2ray支持 发现这篇博客有相关说明3.3.1 beta版有支持 遂更新
+然后写了一个v2ray订阅转surge配置的脚本
+支持npsboost和wdnmd.network
+· 关于surge mac支持v2ray协议配置
+
+Supports VMess proxy protocol.
+vmess-proxy= vmess, example.com, 443, username = 12345678-abcd-1234-1234-47ffca0ce229, ws=true, tls=true, ws-path=/v2, ws-headers=X-Header-1</p>  </article> <footer class="mt-5"> <p class="mb-2.5"> Page 2 / 3 </p> <p class="flex items-center gap-2"> <span class="inline-flex items-center"> <i class="i-mdi-chevron-double-left icon"></i> <a href="/posts/page/1">Previous</a> </span> <span class="inline-flex items-center"> <a href="/posts/page/3">Next</a> <i class="i-mdi-chevron-double-right icon"></i> </span> </p> </footer> <!-- <footer class="mt-5">
+  <p class="mb-2.5">{t('page_number', page.currentPage)} / {t('page_count', page.lastPage)}</p>
+  <p class="flex items-center gap-2">
+    <span class="inline-flex items-center">
+      <i class="i-mdi-chevron-double-left icon"></i>
+      {page.url.prev ? <a href={page.url.prev}> {t('prev')} </a> : <span>{t('prev')}</span>}
+    </span>
+
+    <span class="inline-flex items-center">
+      {page.url.next ? <a href={page.url.next}>{t('next')}</a> : <span>{t('next')}</span>}
+      <i class="i-mdi-chevron-double-right icon"></i>
+    </span>
+  </p>
+</footer> --> </section>  </main> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="lg:hidden p-7.5"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> </body></html>

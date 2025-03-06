@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en"> <head><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.1.3"><title>clash-tproxy 设置网关代理</title><meta charset="utf-8"><link rel="canonical" href="https://revysr.github.io/posts/20210213-clash-tproxy/"><meta name="robots" content="index, follow"><meta property="og:title" content="clash-tproxy 设置网关代理"><meta property="og:type" content="article"><meta property="og:image" content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg"><meta property="og:url" content="https://revysr.github.io/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg" name="twitter:image"><meta content="clash-tproxy 设置网关代理" name="twitter:title"><meta content="" name="twitter:description"><link rel="stylesheet" href="/_astro/about.NTXzv6ay.css" />
+<style>.copy-code{position:absolute;top:0;right:0;background-color:#3730a3;padding:.25rem .5rem;font-size:.75rem;line-height:1rem;border-radius:0 0 0 .25rem}.copy-code:hover{background-color:#312e81}
+</style><script type="module">const n="Copy",r=Array.from(document.querySelectorAll("pre"));for(let e of r){let t=document.createElement("div");t.style.position="relative";let o=document.createElement("button");o.className="copy-code",o.innerHTML=n,e.setAttribute("tabindex","0"),e.appendChild(o),e.parentNode?.insertBefore(t,e),t.appendChild(e),o.addEventListener("click",async()=>{await i(e,o)})}async function i(e,t){let c=e.querySelector("code")?.innerText;await navigator.clipboard.writeText(c??""),t.innerText="Code Copied",setTimeout(()=>{t.innerText=n},700)}
+</script></head> <body> <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a"> <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5"> <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center"> <hgroup un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 " un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left" un-flex="~ col gap-2.5" class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"> <a class="normal" href="/"> <h3 class="text-5 font-extrabold font-serif">Typography</h3> <h1 class="text-8 font-extrabold font-serif">活版印字</h1> </a> </hgroup> <nav class="text-center font-bold" un-flex="~ col gap-2"> <ul un-lg="flex-col items-start text-4" class="text-3.5" un-flex="~ row gap-2 justify-center"> <li> <a href="/posts/page/1">Posts</a> </li><li> <a href="/archive">Archive</a> </li><li> <a href="/categories">Categories</a> </li><li> <a href="/about">About</a> </li> </ul> <ul un-flex="~ row gap-1 justify-center"> <li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="github" class="icon i-mdi-github"></a> </li><li> <a href="/atom.xml" target="_blank" title="rss" class="icon i-mdi-rss"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="twitter" class="icon i-mdi-twitter"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="mastodon" class="icon i-mdi-mastodon"></a> </li> </ul> </nav> </header> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="max-lg:hidden"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">  <article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20210213-clash-tproxy/">clash-tproxy 设置网关代理</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2021-02-13</time> <a class="ml-2.5" href="/categories/clash"># clash</a><a class="ml-2.5" href="/categories/tproxy"># tproxy</a><a class="ml-2.5" href="/categories/iptables"># iptables</a><a class="ml-2.5" href="/categories/yacd"># yacd</a> </div> </header>  <h1 id="configyml-配置"><code>config.yml</code> 配置</h1>
+<p>增加 <code>redir-port</code> <code>tproxy-port</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D">#!/usr/bin/env bash</span></span>
+<span class="line"><span style="color:#B392F0">rm</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> config.yaml</span></span>
+<span class="line"><span style="color:#B392F0">wget</span><span style="color:#79B8FF"> -O</span><span style="color:#9ECBFF"> config.yaml</span><span style="color:#E1E4E8"> ${URL}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">sed</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> 's/port: 7890/port: 8888/'</span><span style="color:#9ECBFF"> config.yaml</span></span>
+<span class="line"><span style="color:#B392F0">sed</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> 's/socks-port: 7891/socks-port: 8889/'</span><span style="color:#9ECBFF"> config.yaml</span></span>
+<span class="line"><span style="color:#B392F0">sed</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> '3 s/^/redir-port: 8890\n/'</span><span style="color:#9ECBFF"> config.yaml</span></span>
+<span class="line"><span style="color:#B392F0">sed</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> '4 s/^/tproxy-port: 8891\n/'</span><span style="color:#9ECBFF"> config.yaml</span></span>
+<span class="line"><span style="color:#B392F0">sed</span><span style="color:#79B8FF"> -i</span><span style="color:#9ECBFF"> 's/external-controller: :9090/external-controller: 0.0.0.0:6170/g'</span><span style="color:#9ECBFF"> config.yaml</span></span></code></pre>
+<h1 id="启动-clash">启动 <code>clash</code></h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#B392F0">clash</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> .</span><span style="color:#6A737D"> # 启动clash</span></span></code></pre>
+<h1 id="部署-yacd">部署 <code>yacd</code></h1>
+<p><code>clash</code> 控制面板 用 <code>docker</code> 部署</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> -p</span><span style="color:#79B8FF"> 8080</span><span style="color:#9ECBFF">:80</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> --restart=always</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> yacd</span><span style="color:#9ECBFF"> haishanh/yacd</span></span></code></pre>
+<p>访问网页 连接部署ip <code>http://${ip}:6170</code></p>
+<h1 id="设置允许-ipv4-转发">设置允许 <code>ipv4</code> 转发</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#79B8FF">echo</span><span style="color:#9ECBFF"> net.ipv4.ip_forward=</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> >></span><span style="color:#9ECBFF"> /etc/sysctl.conf</span><span style="color:#E1E4E8"> &#x26;&#x26; </span><span style="color:#B392F0">sysctl</span><span style="color:#79B8FF"> -p</span></span></code></pre>
+<h1 id="iptables-redirect-设置透明代理"><code>iptables</code> <code>redirect</code> 设置透明代理</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">set</span><span style="color:#79B8FF"> -euo</span><span style="color:#9ECBFF"> pipefail</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> nat</span><span style="color:#79B8FF"> -N</span><span style="color:#9ECBFF"> clash</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> nat</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 10.10</span><span style="color:#9ECBFF">.10.0/24</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> nat</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> tcp</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span><span style="color:#79B8FF"> -m</span><span style="color:#9ECBFF"> mark</span><span style="color:#79B8FF"> --mark</span><span style="color:#79B8FF"> 0xff</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> nat</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> tcp</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> REDIRECT</span><span style="color:#79B8FF"> --to-ports</span><span style="color:#79B8FF"> 8890</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> nat</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> PREROUTING</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> tcp</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> clash</span></span></code></pre>
+<h1 id="iptables-tproxy-透明代理设置"><code>iptables</code> <code>tproxy</code> 透明代理设置</h1>
+<h2 id="tproxy-模块加载"><code>tproxy</code> 模块加载</h2>
+<p><code>tproxy</code> 需要加载内核模块 <code>xt_TPROXY</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 加载 tproxy</span></span>
+<span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> modprobe</span><span style="color:#9ECBFF"> xt_TPROXY</span></span>
+<span class="line"><span style="color:#6A737D"># /etc/modules-load.d/TPROXY.conf</span></span>
+<span class="line"><span style="color:#B392F0">xt_TPROXY</span></span></code></pre>
+<h2 id="iptables-设置转发到-clash-的-tproxy-port"><code>iptables</code> 设置转发到 <code>clash</code> 的 <code>tproxy-port</code></h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">set</span><span style="color:#79B8FF"> -euo</span><span style="color:#9ECBFF"> pipefail</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ROUTE RULES</span></span>
+<span class="line"><span style="color:#B392F0">ip</span><span style="color:#9ECBFF"> rule</span><span style="color:#9ECBFF"> add</span><span style="color:#9ECBFF"> fwmark</span><span style="color:#79B8FF"> 1</span><span style="color:#9ECBFF"> table</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"><span style="color:#B392F0">ip</span><span style="color:#9ECBFF"> route</span><span style="color:#9ECBFF"> add</span><span style="color:#9ECBFF"> local</span><span style="color:#79B8FF"> 0.0</span><span style="color:#9ECBFF">.0.0/0</span><span style="color:#9ECBFF"> dev</span><span style="color:#9ECBFF"> lo</span><span style="color:#9ECBFF"> table</span><span style="color:#79B8FF"> 100</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># CREATE TABLE</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -N</span><span style="color:#9ECBFF"> clash</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># RETURN LOCAL AND LANS</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 0.0</span><span style="color:#9ECBFF">.0.0/8</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 10.0</span><span style="color:#9ECBFF">.0.0/8</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 127.0</span><span style="color:#9ECBFF">.0.0/8</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 169.254</span><span style="color:#9ECBFF">.0.0/16</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 172.16</span><span style="color:#9ECBFF">.0.0/12</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 192.168</span><span style="color:#9ECBFF">.50.0/16</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 192.168</span><span style="color:#9ECBFF">.9.0/16</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 224.0</span><span style="color:#9ECBFF">.0.0/4</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> 240.0</span><span style="color:#9ECBFF">.0.0/4</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> RETURN</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># FORWARD ALL</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> udp</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> TPROXY</span><span style="color:#79B8FF"> --on-port</span><span style="color:#79B8FF"> 8891</span><span style="color:#79B8FF"> --tproxy-mark</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> clash</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> tcp</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> TPROXY</span><span style="color:#79B8FF"> --on-port</span><span style="color:#79B8FF"> 8891</span><span style="color:#79B8FF"> --tproxy-mark</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># REDIRECT</span></span>
+<span class="line"><span style="color:#B392F0">iptables</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> mangle</span><span style="color:#79B8FF"> -A</span><span style="color:#9ECBFF"> PREROUTING</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF"> clash</span></span></code></pre>
+<h1 id="未完内容">未完内容</h1>
+<ul>
+<li>持久 <code>iptables</code> 设置</li>
+<li><code>service</code> 持久化</li>
+</ul>
+<h1 id="参考连接">参考连接</h1>
+<ul>
+<li><a href="https://www.kernel.org/doc/Documentation/networking/tproxy.txt">Transparent proxy support</a></li>
+<li><a href="https://lancellc.gitbook.io/clash/start-clash/clash-udp-tproxy-support">clash tproxy</a></li>
+<li><a href="https://toutyrater.github.io/app/tproxy.html">v2ray tproxy</a></li>
+<li><a href="https://linux.die.net/man/8/modprobe">modprobe manual</a></li>
+<li><a href="https://breakertt.moe/2019/08/20/clash_gateway/">在 Ubuntu18.04 上使用 clash 部署旁路代理网关</a></li>
+<li><a href="https://blog.mrsheep.xyz/posts/clash-gateway/">Clash 透明代理</a></li>
+<li><a href="https://github.com/haishanh/yacd">yacd 控制面板</a></li>
+<li><a href="https://www.jianshu.com/p/76cea3ef249d">Linux使用TPROXY进行UDP的透明代理</a></li>
+<li><a href="https://xuebaxi.com/blog/2019-11-23-01">TProxy實現透明代理</a></li>
+<li><a href="https://www.wogong.net/blog/2020/11/clash-transparent-proxy">Clash 作为网关的透明代理</a></li>
+<li><a href="https://blog.serenader.me/shi-yong-pve-yun-xing-clash-pang-lu-you-xu-ni-ji-shi-xian-tou-ming-dai-li">使用 PVE 运行 Clash 旁路由虚拟机实现透明代理</a></li>
+</ul>  </article> <footer class="mt-5">  <p class="flex items-center gap-2"> <span class="inline-flex items-center"> <i class="i-mdi-chevron-double-left icon"></i> <a href="/posts/20210214-samba-in-gentoo/">Previous post: Gentoo 上配置 Samba</a> </span> <span class="inline-flex items-center"> <a href="/posts/20200810-zfs-replace-update/">Next post: ZFS替换与升级</a> <i class="i-mdi-chevron-double-right icon"></i> </span> </p> </footer> <!-- <footer class="mt-5">
+  <p class="mb-2.5">{t('page_number', page.currentPage)} / {t('page_count', page.lastPage)}</p>
+  <p class="flex items-center gap-2">
+    <span class="inline-flex items-center">
+      <i class="i-mdi-chevron-double-left icon"></i>
+      {page.url.prev ? <a href={page.url.prev}> {t('prev')} </a> : <span>{t('prev')}</span>}
+    </span>
+
+    <span class="inline-flex items-center">
+      {page.url.next ? <a href={page.url.next}>{t('next')}</a> : <span>{t('next')}</span>}
+      <i class="i-mdi-chevron-double-right icon"></i>
+    </span>
+  </p>
+</footer> -->  </main> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="lg:hidden p-7.5"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> </body></html>  

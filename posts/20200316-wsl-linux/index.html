@@ -1,0 +1,178 @@
+<!DOCTYPE html><html lang="en"> <head><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.1.3"><title>WSL2的Linux安装与使用</title><meta charset="utf-8"><link rel="canonical" href="https://revysr.github.io/posts/20200316-wsl-linux/"><meta name="robots" content="index, follow"><meta property="og:title" content="WSL2的Linux安装与使用"><meta property="og:type" content="article"><meta property="og:image" content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg"><meta property="og:url" content="https://revysr.github.io/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta content="https://github.com/moeyua/astro-theme-typography/blob/85204bceb6dbc1314dd5d5e4ae5773af01ddea79/public/typograph-og.jpg" name="twitter:image"><meta content="WSL2的Linux安装与使用" name="twitter:title"><meta content="" name="twitter:description"><link rel="stylesheet" href="/_astro/about.NTXzv6ay.css" />
+<style>.copy-code{position:absolute;top:0;right:0;background-color:#3730a3;padding:.25rem .5rem;font-size:.75rem;line-height:1rem;border-radius:0 0 0 .25rem}.copy-code:hover{background-color:#312e81}
+</style><script type="module">const n="Copy",r=Array.from(document.querySelectorAll("pre"));for(let e of r){let t=document.createElement("div");t.style.position="relative";let o=document.createElement("button");o.className="copy-code",o.innerHTML=n,e.setAttribute("tabindex","0"),e.appendChild(o),e.parentNode?.insertBefore(t,e),t.appendChild(e),o.addEventListener("click",async()=>{await i(e,o)})}async function i(e,t){let c=e.querySelector("code")?.innerText;await navigator.clipboard.writeText(c??""),t.innerText="Code Copied",setTimeout(()=>{t.innerText=n},700)}
+</script></head> <body> <div un-max-lg="animate-fadein-down" un-lg="flex flex-row-reverse justify-center gap-4 px-8" class="container contain-layout m-a"> <div un-lg="sticky top-0 h-screen py-20 animate-fadein-left gap-8" un-lg:flex="~ col justify-between items-start gap-4" class="p-7.5"> <header un-lg="grow-1 justify-between items-start" un-flex="~ col gap-2.5" class="text-center"> <hgroup un-hover:lg="bg-foreground color-background pt-3.75 pb-8.75 " un-lg=" write-vertical-right items-start px-2.5 pb-12 b-l-2px b-l-foreground-solid text-left" un-flex="~ col gap-2.5" class="cursor-pointer transition-[padding,background] duration-800 ease-in-out"> <a class="normal" href="/"> <h3 class="text-5 font-extrabold font-serif">Typography</h3> <h1 class="text-8 font-extrabold font-serif">活版印字</h1> </a> </hgroup> <nav class="text-center font-bold" un-flex="~ col gap-2"> <ul un-lg="flex-col items-start text-4" class="text-3.5" un-flex="~ row gap-2 justify-center"> <li> <a href="/posts/page/1">Posts</a> </li><li> <a href="/archive">Archive</a> </li><li> <a href="/categories">Categories</a> </li><li> <a href="/about">About</a> </li> </ul> <ul un-flex="~ row gap-1 justify-center"> <li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="github" class="icon i-mdi-github"></a> </li><li> <a href="/atom.xml" target="_blank" title="rss" class="icon i-mdi-rss"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="twitter" class="icon i-mdi-twitter"></a> </li><li> <a href="https://github.com/moeyua/astro-theme-typography" target="_blank" title="mastodon" class="icon i-mdi-mastodon"></a> </li> </ul> </nav> </header> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="max-lg:hidden"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> <main un-lg="py-20 min-w-xl animate-fadein-down" class="p-7.5">  <article class="heti"> <header> <h1 class="post-title!"> <a href="/posts/20200316-wsl-linux/">WSL2的Linux安装与使用</a> </h1> <div class="mt-2 text-3.5"> <span>Posted at</span> <time>2020-03-16</time> <a class="ml-2.5" href="/categories/linux"># linux</a><a class="ml-2.5" href="/categories/Ubuntu"># Ubuntu</a><a class="ml-2.5" href="/categories/Gentoo"># Gentoo</a><a class="ml-2.5" href="/categories/Hyper-V"># Hyper-V</a><a class="ml-2.5" href="/categories/wsl"># wsl</a> </div> </header>  <h1 id="开宗明义">开宗明义</h1>
+<p><font size="6">不推荐wsl1转制成wsl2</font></p>
+<p>原因就是再转制的过程中 文件的mode属性会丢失</p>
+<p>也不推荐相互转 因为文件系统不同 所以属性存储的位置是不一样的</p>
+<h1 id="依赖条件">依赖条件</h1>
+<ol>
+<li>Windows 10 build 18917 及其更高版本</li>
+<li>Windows Subsystem for Linux 组件开启</li>
+<li>Virual Machine Platform 组件开启</li>
+</ol>
+<h1 id="先行设置">先行设置</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 开启 Windows Subsystem for Linux </span></span>
+<span class="line"><span style="color:#79B8FF">dism.exe</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8">online </span><span style="color:#F97583">/</span><span style="color:#79B8FF">enable-feature</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8">featurename:Microsoft</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">Windows</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">Subsystem</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">Linux </span><span style="color:#F97583">/</span><span style="color:#E1E4E8">all </span><span style="color:#F97583">/</span><span style="color:#E1E4E8">norestart</span></span>
+<span class="line"><span style="color:#6A737D"># 开启 Virual Machine Platform</span></span>
+<span class="line"><span style="color:#79B8FF">dism.exe</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8">online </span><span style="color:#F97583">/</span><span style="color:#79B8FF">enable-feature</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8">featurename:VirtualMachinePlatform </span><span style="color:#F97583">/</span><span style="color:#E1E4E8">all </span><span style="color:#F97583">/</span><span style="color:#E1E4E8">norestart</span></span>
+<span class="line"><span style="color:#6A737D"># (可选) 设置wsl默认版本</span></span>
+<span class="line"><span style="color:#E1E4E8">wsl </span><span style="color:#F97583">--</span><span style="color:#79B8FF">set-default</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">version </span><span style="color:#79B8FF">2</span></span></code></pre>
+<h1 id="安装系统">安装系统</h1>
+<p>不推荐从 <code>Windows Store</code> 下载相关发行版</p>
+<p>我们使用 <code>wsl.exe</code> 手动部署</p>
+<p>首先准备发行版 <code>tar</code> 包</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">发行版</th><th align="left">版本</th><th align="left">下载相关</th></tr></thead><tbody><tr><td align="left">Ubuntu</td><td align="left">18.04(Bionic)</td><td align="left"><a href="https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64-wsl.rootfs.tar.gz">tar.gz</a></td></tr><tr><td align="left">Gentoo</td><td align="left">v0.1-alpha1</td><td align="left"><a href="https://github.com/chriscpritchard/gentoo-wsl2/releases/download/v0.1-alpha1/gentoo.tar">tar</a></td></tr><tr><td align="left">Gentoo amd64 nomultilib</td><td align="left">—</td><td align="left"><a href="https://mirrors.tuna.tsinghua.edu.cn/gentoo/releases/amd64/autobuilds/20201227T214503Z/stage3-amd64-nomultilib-20201227T214503Z.tar.xz">tar</a></td></tr><tr><td align="left">ArchLinux</td><td align="left">20.2.7.0</td><td align="left"><a href="https://github.com/yuk7/ArchWSL/releases/download/20.2.7.0/Arch.zip">zip</a></td></tr></tbody></table>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 导入系统</span></span>
+<span class="line"><span style="color:#E1E4E8">wsl </span><span style="color:#F97583">--</span><span style="color:#E1E4E8">import </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Distro</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">InstallLocation</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">FileName</span><span style="color:#F97583">></span><span style="color:#F97583"> --</span><span style="color:#E1E4E8">version </span><span style="color:#79B8FF">2</span></span></code></pre>
+<p>导入完成之后 之后要做以下几个操作</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 设置密码</span></span>
+<span class="line"><span style="color:#B392F0">passwd</span><span style="color:#9ECBFF"> root</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 创建新用户 ubuntu 没有 wheel 组; gentoo/ArchLinux 没有 sudo 组</span></span>
+<span class="line"><span style="color:#B392F0">useradd</span><span style="color:#79B8FF"> -m</span><span style="color:#79B8FF"> -G</span><span style="color:#9ECBFF"> users,wheel,sudo,audio</span><span style="color:#79B8FF"> -s</span><span style="color:#9ECBFF"> /bin/bash</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">UserNam</span><span style="color:#E1E4E8">e</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">passwd</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">UserNam</span><span style="color:#E1E4E8">e</span><span style="color:#F97583">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 获取用户id</span></span>
+<span class="line"><span style="color:#B392F0">id</span><span style="color:#79B8FF"> -u</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">UserNam</span><span style="color:#E1E4E8">e</span><span style="color:#F97583">></span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 设置默认用户</span></span>
+<span class="line"><span style="color:#6A737D"># 获取 UUID</span></span>
+<span class="line"><span style="color:#79B8FF">Get-ChildItem</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8">Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss\ </span><span style="color:#F97583">|</span><span style="color:#79B8FF"> Get-ItemProperty</span><span style="color:#F97583"> |</span><span style="color:#79B8FF">Select-Object</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8">Property DistributionName</span><span style="color:#F97583">,</span><span style="color:#E1E4E8">PSChildName</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># PSChildName 显示的就是 distro-UUID</span></span>
+<span class="line"><span style="color:#E1E4E8">DistributionName PSChildName</span></span>
+<span class="line"><span style="color:#F97583">----------------</span><span style="color:#F97583"> -----------</span></span>
+<span class="line"><span style="color:#E1E4E8">gentoo           {642d335d</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">f7ad</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">46bb</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">9c11</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">fdee96b4644f}</span></span>
+<span class="line"><span style="color:#E1E4E8">Gentoo           {</span><span style="color:#79B8FF">96173873</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">9dd2</span><span style="color:#F97583">-</span><span style="color:#79B8FF">4971</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">8f30</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">64aba57cd4dd}</span></span>
+<span class="line"><span style="color:#E1E4E8">ArchLinux        {b8690f59</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">f6e3</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">4eea</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">bd44</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">b16893f4cbc5}</span></span>
+<span class="line"><span style="color:#E1E4E8">Ubuntu           {e566c16a</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">b047</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">46da</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">ae71</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">880838d384ab}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 进入注册表</span></span>
+<span class="line"><span style="color:#E1E4E8">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\{distro</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">UUID}</span></span>
+<span class="line"><span style="color:#6A737D"># 修改DefaultUid</span></span>
+<span class="line"><span style="color:#E1E4E8">设置 DefaultUid 为 上一步获取的 id</span></span></code></pre>
+<p>这样子操作之后 wsl2 就以新建的用户启动了</p>
+<p>当然也可以设置其他的注册表项</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">注册表项名</th><th align="left">值意义</th></tr></thead><tbody><tr><td align="left"><code>BasePath</code></td><td align="left">rootfs的路径</td></tr><tr><td align="left"><code>DefaultUid</code></td><td align="left">默认登陆用户的UID</td></tr><tr><td align="left"><code>DistributionName</code></td><td align="left">发行版名称</td></tr><tr><td align="left"><code>DefaultEnvironment</code></td><td align="left">环境变量设置</td></tr><tr><td align="left"><code>KernelCommandLine</code></td><td align="left">Kernel与init设置</td></tr></tbody></table>
+<p><code>DefaultEnvironment</code> 的一个参考设置</p>
+<p><code>HOSTTYPE=x86_64 LANG=en_US.UTF-8 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin</code></p>
+<p><code>KernelCommandLine</code> 的一个参考设置</p>
+<p><code>BOOT_IMAGE=/kernel init=/init</code></p>
+<h1 id="自定义内核">自定义内核</h1>
+<p>安装一个最新的Ubuntu系统</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#6A737D"># 下载ms定制内核</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> ~/workspaces</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#79B8FF"> -b</span><span style="color:#9ECBFF"> linux-msft-wsl-5.4.y</span><span style="color:#9ECBFF"> https://github.com/microsoft/WSL2-Linux-Kernel.git</span></span>
+<span class="line"><span style="color:#79B8FF">cd</span><span style="color:#9ECBFF"> WSL2-Linux-Kernel</span></span>
+<span class="line"><span style="color:#6A737D"># 多核编译定制内核 推荐编译5.4.x</span></span>
+<span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> apt</span><span style="color:#9ECBFF"> install</span><span style="color:#9ECBFF"> build-essential</span><span style="color:#9ECBFF"> flex</span><span style="color:#9ECBFF"> bison</span><span style="color:#9ECBFF"> libssl-dev</span><span style="color:#9ECBFF"> libelf-dev</span></span>
+<span class="line"><span style="color:#B392F0">make</span><span style="color:#9ECBFF"> KCONFIG_CONFIG=Microsoft/config-wsl</span><span style="color:#79B8FF"> -j</span><span style="color:#9ECBFF">`</span><span style="color:#B392F0">nproc</span><span style="color:#9ECBFF">`</span></span>
+<span class="line"><span style="color:#B392F0">rm</span><span style="color:#79B8FF"> -rf</span><span style="color:#9ECBFF"> /mnt/c/kernel/vmlinux</span></span>
+<span class="line"><span style="color:#B392F0">cp</span><span style="color:#9ECBFF"> vmlinux</span><span style="color:#9ECBFF"> /mnt/c/kernel/vmlinux</span></span>
+<span class="line"><span style="color:#6A737D"># 4.19.x在gcc-10下有编译错误</span></span>
+<span class="line"><span style="color:#6A737D"># arch/x86/boot/compressed/kaslr_64.c:33 增加 extern</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Gentoo</span></span>
+<span class="line"><span style="color:#B392F0">sudo</span><span style="color:#9ECBFF"> emerge</span><span style="color:#79B8FF"> -av</span><span style="color:#9ECBFF"> elfutils</span><span style="color:#9ECBFF"> bc</span></span></code></pre>
+<h1 id="配置wslconfig">配置wslconfig</h1>
+<p>编辑 <code>%USERPROFILE%/.wslconfig</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0"><code><span class="line"><span style="color:#B392F0">[wsl2]</span></span>
+<span class="line"><span style="color:#F97583">kernel</span><span style="color:#E1E4E8">=C:\\kernel\\vmlinux </span><span style="color:#6A737D"># 设置自定义内核</span></span>
+<span class="line"><span style="color:#F97583">memory</span><span style="color:#E1E4E8">=32GB </span><span style="color:#6A737D"># 限制内存大小</span></span>
+<span class="line"><span style="color:#6A737D">#processors= # 限制wsl2处理器数量</span></span>
+<span class="line"><span style="color:#6A737D">#swap=</span></span>
+<span class="line"><span style="color:#6A737D">#swapFile=</span></span>
+<span class="line"><span style="color:#F97583">localhostForwarding</span><span style="color:#E1E4E8">=true </span><span style="color:#6A737D"># 允许本地转发</span></span></code></pre>
+<h1 id="参考连接">参考连接</h1>
+<ul>
+<li><a href="https://aka.ms/wsl2">wsl2的介绍</a></li>
+<li><a href="https://wiki.ubuntu.com/WSL">Ubuntu-wiki-wsl</a></li>
+<li><a href="https://github.com/chriscpritchard/gentoo-wsl2">Gentoo-wsl2</a></li>
+<li><a href="https://github.com/yuk7/ArchWSL">ArchWSL</a></li>
+<li><a href="https://github.com/microsoft/WSL/issues/4276#issuecomment-509364493">设置wsl默认用户</a></li>
+<li><a href="https://github.com/microsoft/WSL2-Linux-Kernel">wsl2-linux-kernel</a></li>
+<li><a href="https://developer.moe/gentoo-on-wsl-2">gentoo-on-wsl-2</a></li>
+<li><a href="https://github.com/microsoft/WSL2-Linux-Kernel/pull/215">wsl2内核编译</a></li>
+</ul>  </article> <footer class="mt-5">  <p class="flex items-center gap-2"> <span class="inline-flex items-center"> <i class="i-mdi-chevron-double-left icon"></i> <a href="/posts/20200515-android-development/">Previous post: Android-Development</a> </span> <span class="inline-flex items-center"> <a href="/posts/20200304-gentoo/">Next post: Gentoo 安装笔记</a> <i class="i-mdi-chevron-double-right icon"></i> </span> </p> </footer> <!-- <footer class="mt-5">
+  <p class="mb-2.5">{t('page_number', page.currentPage)} / {t('page_count', page.lastPage)}</p>
+  <p class="flex items-center gap-2">
+    <span class="inline-flex items-center">
+      <i class="i-mdi-chevron-double-left icon"></i>
+      {page.url.prev ? <a href={page.url.prev}> {t('prev')} </a> : <span>{t('prev')}</span>}
+    </span>
+
+    <span class="inline-flex items-center">
+      {page.url.next ? <a href={page.url.next}>{t('next')}</a> : <span>{t('next')}</span>}
+      <i class="i-mdi-chevron-double-right icon"></i>
+    </span>
+  </p>
+</footer> -->  </main> <footer font-bold text-3 un-flex="~ col gap-1" un-lg="gap-3.5" class="lg:hidden p-7.5"> <p>
+© 2025 <a target="_blank" href="https://revysr.github.io/" rel="noopener noreferrer">Typography</a> </p> <p>
+Theme
+<a target="_blank" href="https://github.com/Moeyua/astro-theme-typography" rel="noopener noreferrer">Typography</a>
+by <a target="_blank" href="https://moeyua.com" rel="noopener noreferrer">Moeyua</a> </p> <p>
+Proudly published with
+<a target="_blank" href="https://astro.build" rel="noopener noreferrer">Astro</a> </p> </footer> </div> </body></html>  

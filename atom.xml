@@ -1,0 +1,1207 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/pretty-feed-v3.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>活版印字</title><description>Rediscory the beauty of typography</description><link>https://revysr.github.io/</link><item><title>systemd-nspawn 容器使用</title><link>https://revysr.github.io/posts/20210218-systemd-nspawn-chroot/</link><guid isPermaLink="true">https://revysr.github.io/posts/20210218-systemd-nspawn-chroot/</guid><pubDate>Thu, 18 Feb 2021 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;简介&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;systemd-nspawn&lt;/code&gt; 比 &lt;code&gt;chroot&lt;/code&gt; 可以启动 &lt;code&gt;systemd&lt;/code&gt; 但是要求目标系统有 &lt;code&gt;systemd&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;安装&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;systemd-nspawn&lt;/code&gt; systemd 自带&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;debootstrap&lt;/code&gt; 部署 debian 系发行版工具 要求 &lt;code&gt;root&lt;/code&gt; 下使用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;emerge -av debootstrap
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;部署 &lt;code&gt;Ubuntu&lt;/code&gt;&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;OS=ubuntu
+ARCH=amd64
+VERSION=focal
+cd $WORKSPACES
+mkdir $OS
+debootstrap --arch=$ARCH $VERSION $OS https://opentuna.cn/ubuntu/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;部署 &lt;code&gt;Deepin&lt;/code&gt;&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 默认没有 apricot 脚本 需要去 link 到 gutsy
+OS=deepin
+ARCH=amd64
+VERSION=apricot
+
+cd /usr/share/debootstrap/scripts/
+ln -s gutsy /usr/share/debootstrap/scripts/apricot
+
+cd $WORKSPACES
+mkdir $OS
+debootstrap --arch=$ARCH $VERSION $OS https://community-packages.deepin.com/deepin/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;挂载目录 &lt;code&gt;nodev&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;debootstrap&lt;/code&gt; 部署的时候需要目录不能有 &lt;code&gt;nodev&lt;/code&gt;
+所以在 &lt;code&gt;zfs&lt;/code&gt; 查看挂载属性&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 查看是否有 nodev on/off代表没有/有 
+zfs get all rpool | grep devices
+# 设置取消 nodev
+zfs set devices=on rpool
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;&lt;code&gt;chroot&lt;/code&gt; 切换目录测试效果&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 挂载相关分区
+mount -t proc proc $WORKSPACES/$OS/proc/
+mount -t sysfs sys $WORKSPACES/$OS/sys/
+mount -o bind /dev $WORKSPACES/$OS/dev/
+mount -o bind /dev/pts $WORKSPACES/$OS/dev/pts/
+
+# chroot 查看效果
+chroot $WORKSPACES/$OS /bin/bash
+
+# 取消挂载相关分区
+umount $WORKSPACES/$OS/dev/pts/
+umount $WORKSPACES/$OS/dev/
+umount $WORKSPACES/$OS/sys/
+umount $WORKSPACES/$OS/proc/
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;&lt;code&gt;systemd-nspawn&lt;/code&gt; 使用&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 类似 chroot 使用容器
+systemd-nspawn -D $WORKSPACES/$OS/
+
+# 类似 虚拟机 启动容器
+systemd-nspawn -b -D $WORKSPACES/$OS/
+
+# 关闭容器
+machinectl poweroff $OS
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;相关资料&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.jinbuguo.com/systemd/systemd-nspawn.html&quot;&gt;systemd-nspawn 中文手册&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.wh-redirect.deepin.cn/mediawiki/index.php?title=%E6%9E%84%E5%BB%BAdocker%E5%BA%94%E7%94%A8%E7%9A%84base_image&quot;&gt;构建docker应用的base image&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.debian.org/Debootstrap&quot;&gt;Debootstrap&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://gist.github.com/cdown/5c5b53e1855d7812dfbc&quot;&gt;Debian chroot inside Arch&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.debian.org/chroot&quot;&gt;chroot&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.ubuntu.com/DebootstrapChroot&quot;&gt;DebootstrapChroot&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://manpages.ubuntu.com/manpages/bionic/man8/zfs.8.html&quot;&gt;Ubuntu manuals zfs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cnblogs.com/xingmuxin/p/8446115.html&quot;&gt;mount --bind使用方法&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>systemd</category><category>container</category><category>ubuntu</category><author>Typography</author></item><item><title>Gentoo 上配置 Samba</title><link>https://revysr.github.io/posts/20210214-samba-in-gentoo/</link><guid isPermaLink="true">https://revysr.github.io/posts/20210214-samba-in-gentoo/</guid><pubDate>Sun, 14 Feb 2021 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;安装 &lt;code&gt;Samba&lt;/code&gt;&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# /usr/portage/package.use 配置 USE
+# samba
+net-fs/samba -cups -client -system-mitkrb5 # 移除域控和不必要的依赖
+sys-libs/ldb -ldap # 移除域控
+# Install Samba
+emerge --ask --noreplace net-fs/samba
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;配置 &lt;code&gt;Samba&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;创建要共享的 &lt;code&gt;Samba&lt;/code&gt; 目录并配置 &lt;code&gt;smb.conf&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# /etc/samba/smb.conf
+[anime]
+path = /data/bt/downloads
+public = yes
+writable = yes
+valid users = ${USER} # 替换成对应用户
+create mask = 0644
+force create mode = 0644
+directory mask = 0755
+force directory mode = 0755
+available = yes
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;创建 &lt;code&gt;Samba&lt;/code&gt; 用户密码&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;smbpasswd -a $USER
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;启动 Samba&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# systemd
+systemctl enable smb.service
+systemctl start smb.service
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;参考资料&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.gentoo.org/wiki/Samba&quot;&gt;Gentoo Samba Wiki&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.gentoo.org/wiki/Samba/Guide&quot;&gt;Gentoo Samba/Guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cnblogs.com/gzdaijie/p/5194033.html&quot;&gt;Linux与Windows共享文件夹之samba的安装与使用（Ubuntu为例）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/wsclinux/article/details/75214842&quot;&gt;添加samba用户，并设置密码&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>gentoo</category><category>samba</category><author>Typography</author></item><item><title>clash-tproxy 设置网关代理</title><link>https://revysr.github.io/posts/20210213-clash-tproxy/</link><guid isPermaLink="true">https://revysr.github.io/posts/20210213-clash-tproxy/</guid><pubDate>Sat, 13 Feb 2021 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;&lt;code&gt;config.yml&lt;/code&gt; 配置&lt;/h1&gt;
+&lt;p&gt;增加 &lt;code&gt;redir-port&lt;/code&gt; &lt;code&gt;tproxy-port&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env bash
+rm -f config.yaml
+wget -O config.yaml ${URL}
+
+sed -i &apos;s/port: 7890/port: 8888/&apos; config.yaml
+sed -i &apos;s/socks-port: 7891/socks-port: 8889/&apos; config.yaml
+sed -i &apos;3 s/^/redir-port: 8890\n/&apos; config.yaml
+sed -i &apos;4 s/^/tproxy-port: 8891\n/&apos; config.yaml
+sed -i &apos;s/external-controller: :9090/external-controller: 0.0.0.0:6170/g&apos; config.yaml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;启动 &lt;code&gt;clash&lt;/code&gt;&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;clash -d . # 启动clash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;部署 &lt;code&gt;yacd&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;clash&lt;/code&gt; 控制面板 用 &lt;code&gt;docker&lt;/code&gt; 部署&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;docker run -p 8080:80 -d --restart=always --name yacd haishanh/yacd
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;访问网页 连接部署ip &lt;code&gt;http://${ip}:6170&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;设置允许 &lt;code&gt;ipv4&lt;/code&gt; 转发&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;echo net.ipv4.ip_forward=1 &amp;gt;&amp;gt; /etc/sysctl.conf &amp;amp;&amp;amp; sysctl -p
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;&lt;code&gt;iptables&lt;/code&gt; &lt;code&gt;redirect&lt;/code&gt; 设置透明代理&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env bash
+
+set -euo pipefail
+
+iptables -t nat -N clash
+iptables -t nat -A clash -d 10.10.10.0/24 -j RETURN
+iptables -t nat -A clash -p tcp -j RETURN -m mark --mark 0xff
+iptables -t nat -A clash -p tcp -j REDIRECT --to-ports 8890
+iptables -t nat -A PREROUTING -p tcp -j clash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;&lt;code&gt;iptables&lt;/code&gt; &lt;code&gt;tproxy&lt;/code&gt; 透明代理设置&lt;/h1&gt;
+&lt;h2&gt;&lt;code&gt;tproxy&lt;/code&gt; 模块加载&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;tproxy&lt;/code&gt; 需要加载内核模块 &lt;code&gt;xt_TPROXY&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 加载 tproxy
+sudo modprobe xt_TPROXY
+# /etc/modules-load.d/TPROXY.conf
+xt_TPROXY
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;&lt;code&gt;iptables&lt;/code&gt; 设置转发到 &lt;code&gt;clash&lt;/code&gt; 的 &lt;code&gt;tproxy-port&lt;/code&gt;&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env bash
+
+set -euo pipefail
+
+# ROUTE RULES
+ip rule add fwmark 1 table 100
+ip route add local 0.0.0.0/0 dev lo table 100
+
+# CREATE TABLE
+iptables -t mangle -N clash
+
+# RETURN LOCAL AND LANS
+iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN
+iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN
+iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN
+iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN
+iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN
+iptables -t mangle -A clash -d 192.168.50.0/16 -j RETURN
+iptables -t mangle -A clash -d 192.168.9.0/16 -j RETURN
+
+iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN
+iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN
+
+# FORWARD ALL
+iptables -t mangle -A clash -p udp -j TPROXY --on-port 8891 --tproxy-mark 1
+iptables -t mangle -A clash -p tcp -j TPROXY --on-port 8891 --tproxy-mark 1
+
+# REDIRECT
+iptables -t mangle -A PREROUTING -j clash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;未完内容&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;持久 &lt;code&gt;iptables&lt;/code&gt; 设置&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;service&lt;/code&gt; 持久化&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考连接&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kernel.org/doc/Documentation/networking/tproxy.txt&quot;&gt;Transparent proxy support&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://lancellc.gitbook.io/clash/start-clash/clash-udp-tproxy-support&quot;&gt;clash tproxy&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://toutyrater.github.io/app/tproxy.html&quot;&gt;v2ray tproxy&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://linux.die.net/man/8/modprobe&quot;&gt;modprobe manual&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://breakertt.moe/2019/08/20/clash_gateway/&quot;&gt;在 Ubuntu18.04 上使用 clash 部署旁路代理网关&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://blog.mrsheep.xyz/posts/clash-gateway/&quot;&gt;Clash 透明代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/haishanh/yacd&quot;&gt;yacd 控制面板&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.jianshu.com/p/76cea3ef249d&quot;&gt;Linux使用TPROXY进行UDP的透明代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://xuebaxi.com/blog/2019-11-23-01&quot;&gt;TProxy實現透明代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.wogong.net/blog/2020/11/clash-transparent-proxy&quot;&gt;Clash 作为网关的透明代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://blog.serenader.me/shi-yong-pve-yun-xing-clash-pang-lu-you-xu-ni-ji-shi-xian-tou-ming-dai-li&quot;&gt;使用 PVE 运行 Clash 旁路由虚拟机实现透明代理&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>clash</category><category>tproxy</category><category>iptables</category><category>yacd</category><author>Typography</author></item><item><title>ZFS替换与升级</title><link>https://revysr.github.io/posts/20200810-zfs-replace-update/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200810-zfs-replace-update/</guid><pubDate>Mon, 10 Aug 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;替换原因&lt;/h2&gt;
+&lt;p&gt;我原来使用 &lt;code&gt;360G&lt;/code&gt; 的鱼竿厂硬盘作为 &lt;code&gt;ZFS&lt;/code&gt; 根目录, 现在觉得这个操作比较危险, 所以购入了两块 &lt;code&gt;PM981a&lt;/code&gt; 做系统盘. 两块盘做了&lt;code&gt;mirror-0&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;替换&lt;/h2&gt;
+&lt;p&gt;创建完分区(因为有 &lt;code&gt;EFI&lt;/code&gt; 所以不能全盘 &lt;code&gt;ZFS&lt;/code&gt;)后 执行以下命令&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;zpool replace rpool sda2 /dev/nvme0n1p2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;gentoo-zh&lt;/code&gt; 频道的人说需要 &lt;code&gt;detach&lt;/code&gt; 旧盘&lt;/p&gt;
+&lt;p&gt;我个人操作完毕感觉旧硬盘自动被 &lt;code&gt;detach&lt;/code&gt; 了&lt;/p&gt;
+&lt;h2&gt;添加镜像盘&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;zpool attach rpool nvme0n1p2 nvme1n1p2  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样就添加完 &lt;code&gt;mirror&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;扩容&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;# 自动扩容
+zpool set autoexpand=on rpool
+zpool online -e rpool nvme0n1p2
+zpool online -e rpool nvme1n1p2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;额外&lt;/h2&gt;
+&lt;p&gt;旧的 &lt;code&gt;EFI&lt;/code&gt; 分区应该迁移到新硬盘&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mount /dev/nvme0n1p1 /mnt
+cp -rf /boot/* /mnt/
+umount /boot
+umount /mnt
+mount /dev/nvme0n1p1 /boot
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# 计算 EFI 分区 UUID
+blkid
+# 修改 fstab
+nano /etc/fstab
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# 重新安装 grub
+grub-install --target=x86_64-efi --efi-directory=/boot
+# 重新创建 grub 引导项
+grub-mkconfig -o /boot/grub/grub.cfg
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;重启就能看见新系统了&lt;/p&gt;
+</content:encoded><category>zfs</category><category>linux</category><author>Typography</author></item><item><title>Android-Development</title><link>https://revysr.github.io/posts/20200515-android-development/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200515-android-development/</guid><pubDate>Fri, 15 May 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;卷首&lt;/h2&gt;
+&lt;p&gt;想学习一技之长，所以选择了Android&lt;/p&gt;
+&lt;h2&gt;Android Build 踩坑&lt;/h2&gt;
+&lt;h3&gt;依赖&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;sys-libs/ncurses-compat
+dev-util/gperf
+media-libs/mesa vulkan
+media-libs/vulkan-loader X
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;&lt;/h3&gt;
+&lt;p&gt;在Gentoo上首先遇到的问题是&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;JAVAC does not match between Make and Soong
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;解决办法是&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;unset JAVAC
+&lt;/code&gt;&lt;/pre&gt;
+</content:encoded><category>Android</category><author>Typography</author></item><item><title>WSL2的Linux安装与使用</title><link>https://revysr.github.io/posts/20200316-wsl-linux/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200316-wsl-linux/</guid><pubDate>Mon, 16 Mar 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h1&gt;开宗明义&lt;/h1&gt;
+&lt;p&gt;&amp;lt;font size=6&amp;gt;不推荐wsl1转制成wsl2&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;p&gt;原因就是再转制的过程中 文件的mode属性会丢失&lt;/p&gt;
+&lt;p&gt;也不推荐相互转 因为文件系统不同 所以属性存储的位置是不一样的&lt;/p&gt;
+&lt;h1&gt;依赖条件&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;Windows 10 build 18917 及其更高版本&lt;/li&gt;
+&lt;li&gt;Windows Subsystem for Linux 组件开启&lt;/li&gt;
+&lt;li&gt;Virual Machine Platform 组件开启&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1&gt;先行设置&lt;/h1&gt;
+&lt;pre&gt;&lt;code&gt;# 开启 Windows Subsystem for Linux 
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+# 开启 Virual Machine Platform
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+# (可选) 设置wsl默认版本
+wsl --set-default-version 2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;安装系统&lt;/h1&gt;
+&lt;p&gt;不推荐从 &lt;code&gt;Windows Store&lt;/code&gt; 下载相关发行版&lt;/p&gt;
+&lt;p&gt;我们使用 &lt;code&gt;wsl.exe&lt;/code&gt; 手动部署&lt;/p&gt;
+&lt;p&gt;首先准备发行版 &lt;code&gt;tar&lt;/code&gt; 包&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;发行版&lt;/th&gt;
+&lt;th&gt;版本&lt;/th&gt;
+&lt;th&gt;下载相关&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Ubuntu&lt;/td&gt;
+&lt;td&gt;18.04(Bionic)&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64-wsl.rootfs.tar.gz&quot;&gt;tar.gz&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Gentoo&lt;/td&gt;
+&lt;td&gt;v0.1-alpha1&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://github.com/chriscpritchard/gentoo-wsl2/releases/download/v0.1-alpha1/gentoo.tar&quot;&gt;tar&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Gentoo amd64 nomultilib&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://mirrors.tuna.tsinghua.edu.cn/gentoo/releases/amd64/autobuilds/20201227T214503Z/stage3-amd64-nomultilib-20201227T214503Z.tar.xz&quot;&gt;tar&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ArchLinux&lt;/td&gt;
+&lt;td&gt;20.2.7.0&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://github.com/yuk7/ArchWSL/releases/download/20.2.7.0/Arch.zip&quot;&gt;zip&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;pre&gt;&lt;code&gt;# 导入系统
+wsl --import &amp;lt;Distro&amp;gt; &amp;lt;InstallLocation&amp;gt; &amp;lt;FileName&amp;gt; --version 2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;导入完成之后 之后要做以下几个操作&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 设置密码
+passwd root
+
+# 创建新用户 ubuntu 没有 wheel 组; gentoo/ArchLinux 没有 sudo 组
+useradd -m -G users,wheel,sudo,audio -s /bin/bash &amp;lt;UserName&amp;gt;
+passwd &amp;lt;UserName&amp;gt;
+
+# 获取用户id
+id -u &amp;lt;UserName&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# 设置默认用户
+# 获取 UUID
+Get-ChildItem -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss\ | Get-ItemProperty |Select-Object -Property DistributionName,PSChildName
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# PSChildName 显示的就是 distro-UUID
+DistributionName PSChildName
+---------------- -----------
+gentoo           {642d335d-f7ad-46bb-9c11-fdee96b4644f}
+Gentoo           {96173873-9dd2-4971-8f30-64aba57cd4dd}
+ArchLinux        {b8690f59-f6e3-4eea-bd44-b16893f4cbc5}
+Ubuntu           {e566c16a-b047-46da-ae71-880838d384ab}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# 进入注册表
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\{distro-UUID}
+# 修改DefaultUid
+设置 DefaultUid 为 上一步获取的 id
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样子操作之后 wsl2 就以新建的用户启动了&lt;/p&gt;
+&lt;p&gt;当然也可以设置其他的注册表项&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;注册表项名&lt;/th&gt;
+&lt;th&gt;值意义&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;BasePath&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;rootfs的路径&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;DefaultUid&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;默认登陆用户的UID&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;DistributionName&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;发行版名称&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;DefaultEnvironment&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;环境变量设置&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;KernelCommandLine&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;Kernel与init设置&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;code&gt;DefaultEnvironment&lt;/code&gt; 的一个参考设置&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;HOSTTYPE=x86_64 LANG=en_US.UTF-8 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;KernelCommandLine&lt;/code&gt; 的一个参考设置&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;BOOT_IMAGE=/kernel init=/init&lt;/code&gt;&lt;/p&gt;
+&lt;h1&gt;自定义内核&lt;/h1&gt;
+&lt;p&gt;安装一个最新的Ubuntu系统&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 下载ms定制内核
+cd ~/workspaces
+git clone -b linux-msft-wsl-5.4.y https://github.com/microsoft/WSL2-Linux-Kernel.git
+cd WSL2-Linux-Kernel
+# 多核编译定制内核 推荐编译5.4.x
+sudo apt install build-essential flex bison libssl-dev libelf-dev
+make KCONFIG_CONFIG=Microsoft/config-wsl -j`nproc`
+rm -rf /mnt/c/kernel/vmlinux
+cp vmlinux /mnt/c/kernel/vmlinux
+# 4.19.x在gcc-10下有编译错误
+# arch/x86/boot/compressed/kaslr_64.c:33 增加 extern
+
+# Gentoo
+sudo emerge -av elfutils bc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;配置wslconfig&lt;/h1&gt;
+&lt;p&gt;编辑 &lt;code&gt;%USERPROFILE%/.wslconfig&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[wsl2]
+kernel=C:\\kernel\\vmlinux # 设置自定义内核
+memory=32GB # 限制内存大小
+#processors= # 限制wsl2处理器数量
+#swap=
+#swapFile=
+localhostForwarding=true # 允许本地转发
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h1&gt;参考连接&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://aka.ms/wsl2&quot;&gt;wsl2的介绍&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://wiki.ubuntu.com/WSL&quot;&gt;Ubuntu-wiki-wsl&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/chriscpritchard/gentoo-wsl2&quot;&gt;Gentoo-wsl2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/yuk7/ArchWSL&quot;&gt;ArchWSL&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/microsoft/WSL/issues/4276#issuecomment-509364493&quot;&gt;设置wsl默认用户&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/microsoft/WSL2-Linux-Kernel&quot;&gt;wsl2-linux-kernel&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.moe/gentoo-on-wsl-2&quot;&gt;gentoo-on-wsl-2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/microsoft/WSL2-Linux-Kernel/pull/215&quot;&gt;wsl2内核编译&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>linux</category><category>Ubuntu</category><category>Gentoo</category><category>Hyper-V</category><category>wsl</category><author>Typography</author></item><item><title>Gentoo 安装笔记</title><link>https://revysr.github.io/posts/20200304-gentoo/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200304-gentoo/</guid><pubDate>Wed, 04 Mar 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;开宗明义&lt;/h2&gt;
+&lt;p&gt;&amp;lt;font size=6&amp;gt;Linux 就应该不要选择使用桌面&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;h3&gt;不选择桌面的原因&lt;/h3&gt;
+&lt;p&gt;可以节省你大量折腾的时间 包括但不限于以下内容
+GNOME 3/KDE 5/Xfce/Mate 等桌面的选择、配置、美化 (我有强迫症)
+Windows 上的工具/软件的替代品 (QQ/Wechat etc.)&lt;/p&gt;
+&lt;h2&gt;安装环境与分区方案&lt;/h2&gt;
+&lt;p&gt;Windows 10 1909 的 Hyper-V
+Ubuntu 18.04.3&lt;/p&gt;
+&lt;p&gt;以下操作都假设在 &lt;code&gt;root&lt;/code&gt; 用户下操作&lt;/p&gt;
+&lt;h3&gt;Hyper-V 资源分配方案&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;资源&lt;/th&gt;
+&lt;th&gt;--&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;cpu&lt;/td&gt;
+&lt;td&gt;2 core&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ram&lt;/td&gt;
+&lt;td&gt;4 GB&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;网卡&lt;/td&gt;
+&lt;td&gt;Hyper-V 虚拟网卡(桥接)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;硬盘&lt;/td&gt;
+&lt;td&gt;光威悍将 480GB(直通)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;选择桥接是因为我想把设备都放在一个子网下面
+这个方案适合不移动的台式机 笔记本应该选择 NAT 方案&lt;/p&gt;
+&lt;p&gt;硬盘直通的原因是不想占用硬盘上的空间 正好有闲置硬盘
+就直通进去了 坏处是不能享受虚拟机快照功能&lt;/p&gt;
+&lt;h3&gt;分区方案&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;分区&lt;/th&gt;
+&lt;th&gt;磁盘格式&lt;/th&gt;
+&lt;th&gt;分区大小&lt;/th&gt;
+&lt;th&gt;btrfs 子卷&lt;/th&gt;
+&lt;th&gt;挂载点&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;/dev/sda1&lt;/td&gt;
+&lt;td&gt;fat32&lt;/td&gt;
+&lt;td&gt;2GB&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;/boot&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;/dev/sda2&lt;/td&gt;
+&lt;td&gt;swap&lt;/td&gt;
+&lt;td&gt;8GB&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;/dev/sda3&lt;/td&gt;
+&lt;td&gt;btrfs&lt;/td&gt;
+&lt;td&gt;438GB&lt;/td&gt;
+&lt;td&gt;rootfs&lt;/td&gt;
+&lt;td&gt;/&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;homefs&lt;/td&gt;
+&lt;td&gt;/home&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;code&gt;boot&lt;/code&gt; 分区分配 2GB 的原因是我喜欢把内核放在 boot 分区
+不希望因为多安装几个内核就需要手动移除旧版内核&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;swap&lt;/code&gt; 分区创建的原因是 &lt;code&gt;linux 5.0&lt;/code&gt; 之前 &lt;code&gt;btrfs&lt;/code&gt; 分区不支持使用 &lt;code&gt;swapfile&lt;/code&gt;
+现在稳定内核是 &lt;code&gt;4.19.97&lt;/code&gt; 所以还是创建 swap 分区 防止编译爆内存&lt;/p&gt;
+&lt;p&gt;剩余空间使用 &lt;code&gt;btrfs&lt;/code&gt; 文件系统的原因是我想剩余分区共享大小还能单独备份
+最初在 &lt;code&gt;ThinkPad t450s&lt;/code&gt; 上实现 &lt;code&gt;FreeBSD&lt;/code&gt; 与 &lt;code&gt;Gentoo&lt;/code&gt; 公用 &lt;code&gt;zfs&lt;/code&gt; 分区的习惯保留下来&lt;/p&gt;
+&lt;h2&gt;安装 Gentoo&lt;/h2&gt;
+&lt;h3&gt;分区与挂载&lt;/h3&gt;
+&lt;h4&gt;创建分区&lt;/h4&gt;
+&lt;p&gt;分区创建 使用 &lt;code&gt;fdisk&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;fdisk /dev/sda
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4&gt;格式化分区&lt;/h4&gt;
+&lt;pre&gt;&lt;code&gt;# 格式化 boot 分区
+mkfs.vfat -F32 /dev/sda1
+# 格式化 btrfs 分区
+mkfs.btrfs -f /dev/sda3
+# 格式化 swap 分区
+mkswap /dev/sda2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h4&gt;挂载分区&lt;/h4&gt;
+&lt;p&gt;依据 Gentoo 安装文档 我们创建 &lt;code&gt;/mnt/gentoo&lt;/code&gt; 分区并挂载相关分区&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 创建 /mnt/gentoo
+mkdir -p /mnt/gentoo
+# 挂载 btrfs 分区
+mount /dev/sda3 /mnt/gentoo
+# 创建 btrfs 子卷
+cd /mnt/gentoo
+btrfs subvol create rootfs
+btrfs subvol create hometfs
+# 解除 btrfs 分区挂载并挂载相应子卷
+cd ..
+umount /dev/sda3
+mount /dev/sda3 /mnt/gentoo -o subvol=rootfs,compress=zstd,noatime,discard,ssd,space_cache
+mkdir /mnt/gentoo/home
+mount /dev/sda3 /mnt/gentoo/home -o subvol=homefs,compress=zstd,noatime,discard,ssd,space_cache
+# 挂载 boot 分区
+mkdir /mnt/gentoo/boot
+mount /dev/sda1 /mnt/gentoo/boot
+# 挂载 swap 分区
+swapon /dev/sda2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;-o 后面跟着 硬盘优化选项，如下表所示&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;硬盘类型&lt;/th&gt;
+&lt;th&gt;优化选项&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;SSD&lt;/td&gt;
+&lt;td&gt;compress=zstd,noatime,discard,ssd,space_cache&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;HDD&lt;/td&gt;
+&lt;td&gt;compress-force=zstd,noatime,autodefrag,space_cache&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;其中压缩选项我们选择了 &lt;code&gt;facebook&lt;/code&gt; 的 &lt;a href=&quot;https://facebook.github.io/zstd/&quot;&gt;zstd&lt;/a&gt;
+选用新潮压缩技术 做最炫酷的崽&lt;/p&gt;
+</content:encoded><category>Gentoo</category><category>OS</category><category>Linux</category><category>Hyper-V</category><author>Typography</author></item><item><title>NAS 折腾笔记</title><link>https://revysr.github.io/posts/20200303-nas/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200303-nas/</guid><pubDate>Tue, 03 Mar 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;什么是NAS&lt;/h2&gt;
+&lt;p&gt;網路附加儲存（英語：Network Attached Storage，缩写：NAS），是一種專門的資料儲存技術的名稱，它可以直接連接在電腦網路上面，對異質網路使用者提供了集中式資料存取服務。&lt;/p&gt;
+&lt;h2&gt;为什么使用NAS&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;想要保存一些数据和备份系统(多一层保险)&lt;/li&gt;
+&lt;li&gt;备份windows/linux/macOS&lt;/li&gt;
+&lt;li&gt;运行一些低功耗后台服务
+&lt;ul&gt;
+&lt;li&gt;例如KMS激活服务&lt;/li&gt;
+&lt;li&gt;虚拟机做轻量级旁网关&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;现在持有的机种&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;机种&lt;/th&gt;
+&lt;th&gt;盘位&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href=&quot;https://www.synology.com/en-global/products/DS1821+&quot;&gt;Synology DS1821+&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;8&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;a href=&quot;https://www.synology.com/en-global/support/download/DS218+&quot;&gt;Synology DS218+&lt;/a&gt;&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;J1900&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;NAS 系统&lt;/h2&gt;
+&lt;h3&gt;成品 NAS 系统&lt;/h3&gt;
+&lt;h4&gt;Synology 出品的 DSM (俗称群晖)&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;专门 NAS 系统&lt;/h3&gt;
+&lt;h4&gt;&lt;a href=&quot;https://www.freenas.org/&quot;&gt;FreeNAS&lt;/a&gt;/&lt;a href=&quot;https://www.truenas.com/truenas-core/&quot;&gt;TrueNAS CORE&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;// TODO&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;https://unraid.net/&quot;&gt;UnRaid&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;// TODO&lt;/p&gt;
+&lt;h4&gt;&lt;a href=&quot;https://www.truenas.com/truenas-scale/&quot;&gt;TrueNAS SCALE&lt;/a&gt;&lt;/h4&gt;
+&lt;p&gt;// TODO&lt;/p&gt;
+&lt;h2&gt;现在正在服役的 NAS 机器&lt;/h2&gt;
+&lt;h3&gt;Synology DS1821+&lt;/h3&gt;
+&lt;p&gt;// TODO&lt;/p&gt;
+&lt;h3&gt;Synology DS218+&lt;/h3&gt;
+&lt;p&gt;// ToDo&lt;/p&gt;
+&lt;h3&gt;J1900&lt;/h3&gt;
+&lt;p&gt;// ToDo&lt;/p&gt;
+</content:encoded><category>NAS</category><category>Linux</category><category>FreeBSD</category><category>DSM</category><category>FreeNAS</category><category>J1900</category><author>Typography</author></item><item><title>Openwrt 折腾笔记</title><link>https://revysr.github.io/posts/20200302-build-openwrt/</link><guid isPermaLink="true">https://revysr.github.io/posts/20200302-build-openwrt/</guid><pubDate>Mon, 02 Mar 2020 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;&lt;strong&gt;参战硬件&lt;/strong&gt;&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;硬件&lt;/th&gt;
+&lt;th&gt;价格&lt;/th&gt;
+&lt;th&gt;购买方式&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;phicomm-k1&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;学长送的&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ASUS RT-ACRH17&lt;/td&gt;
+&lt;td&gt;429&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/5186619.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3855U 6口 工控路由&lt;/td&gt;
+&lt;td&gt;820&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://detail.tmall.com/item.htm?id=576827354736&quot;&gt;淘宝&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3&gt;&lt;strong&gt;phicomm-k1&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;这个设备是一位不愿意透露姓名的学长送的
+他刷好了Pandavan固件
+这个设备后来还被我用来做交换机使用&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Pandavan&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;最初我获得设备的时候就是这个固件 常用固件功能都有
+最初我需要这个设备的原因是要在路由器上跑Shadowsocks
+因为Android设备刷完&lt;a href=&quot;https://opengapps.org/&quot;&gt;OpenGApps&lt;/a&gt;需要连接Google登陆账号激活
+路由器上跑代理是解决这个问题的办法
+后来因为这个设备接口都是百兆所以我买了ACRH17替换掉&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Openwrt&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;这固件是后来我想折腾Openwrt固件时候才开始刷进去的
+我写了一个编译Dockerfile 把.config放入就可以直接docker build生产固件
+后来我还写了自动上传到github
+编译&lt;a href=&quot;https://github.com/Rabenda/openwrt-phicomm-k1&quot;&gt;Docker地址&lt;/a&gt;
+后来发现travis集成不能编译超过40分钟 docker hub也不能超过一定时间
+在本地编了几次之后 编译机被拿走了 就没有在折腾了&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;PandoraBox&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;之后为了做学校项目 一个基于mqtt的智能家居系统
+刷成了PandoraBox 就当作普通路由使用了&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;RT-ACRH17&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;这个机器宣称有&lt;code&gt;160MHz&lt;/code&gt; 所以我就寻找了相关固件
+这个机器配了一个USB3.0的接口 官方固件只支持2.0 所以需要第三方固件&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Merlin&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;第一次选择的是&lt;a href=&quot;https://www.right.com.cn/forum/thread-708359-1-1.html&quot;&gt;Merlin固件&lt;/a&gt;
+正常来说是没有&lt;a href=&quot;https://www.asuswrt-merlin.net&quot;&gt;Merlin&lt;/a&gt;
+因为ACRH17使用的是高通的芯片 没有Merlin才是正常情况
+Lean的固件有&lt;code&gt;160MHz&lt;/code&gt; 但是实际上跑不上去&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Lean&apos;s LEDE&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;因为没找到&lt;code&gt;160MHz&lt;/code&gt;的固件 我就使用了Merlin固件作者的LEDE来扩展功能
+&lt;a href=&quot;https://github.com/coolsnowwolf/lede&quot;&gt;Lean&apos;s LEDE&lt;/a&gt;
+不选择&lt;a href=&quot;https://openwrt.org/&quot;&gt;Openwrt&lt;/a&gt;官方的固件的原因是没有适配这个机型
+LEDE扩展功能真的好多 但是当时懒了 直接用别人编好的固件&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;PandoraBox&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;第三次选择的是&lt;a href=&quot;https://www.right.com.cn/forum/thread-318998-1-1.html&quot;&gt;PandoraBox固件&lt;/a&gt;
+原因是我还是想要&lt;code&gt;160MHz&lt;/code&gt; 毕竟这是学长忽悠我买这个机器的原因之一
+这个固件我刷了两次之后 也刷了pb-boot和op-boot 刷了几次之后把ART分区数据弄丢了
+结果这机器就显示自己是RT-AC82U 实际上华硕根本没有这个产品
+ART分区丢失的话 信号就有问题了 所以在网上找了其他人的原厂固件和ART分区刷进去&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Offical&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;后来完全刷回了官方固件 再后来就有了3855U软路由
+之后这个设备就用做了AP 放在客厅里发挥AP的作用&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;../../assets/rt-acrh17_show.png&quot; alt=&quot;rt-acrh17_show&quot; /&gt;&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;3855U&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;这个硬件是在我购买了小米电视4A后产生的需求
+原本的ACRH17刷完lean&apos;s LEDE的固件时候
+对于网关SSR有了解码速度的需求
+所以买了x86的软路由&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;硬件选择&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;店家有D525/J1900/3855U/3865U选择
+不选D525的原因是这玩意超级老 没意思
+J1900淘汰的原因是我已经有一个J1900作为NAS使用了 不想再来一个
+3865U排除的原因是使用DDR4内存 没钱买内存
+使用3855U 我有空余DDR3内存和sata硬盘使用&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;ESXi+iKuai+lean&apos;s LEDE&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;最初这个方案是我看了很多软路由介绍的视频
+决定参考他们的方案
+决定LEDE作为主路由 iKuai作为旁路由
+加上一块480G的SATA3的SSD 一条16G的DDR3内存
+实际安装下来遇到了如下的问题&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;iKuai宣称的多播我无法正确使用&lt;/li&gt;
+&lt;li&gt;iKuai的行为管理功能我实际上是不需要的&lt;/li&gt;
+&lt;li&gt;iKuai的64位版本需要4GB内存&lt;/li&gt;
+&lt;li&gt;ESXi直通网卡的时候 LEDE内部的网卡和外部网卡编号无法对应&lt;/li&gt;
+&lt;li&gt;iKuai/LEDE/ESXi需要公用一个网口做混杂模式 否则无法相通&lt;/li&gt;
+&lt;li&gt;LEDE带的mwan3多播 我使用之后不会做负载分流&lt;/li&gt;
+&lt;li&gt;LEDE拨号时候固件缺少ipv6相关组件 无法获取ipv6&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;编号无法对应的问题我查看内部外部网卡MAC地址解决了
+因为我是用iKuai无法完成使用iKuai的目的
+所以我移除了iKuai虚拟机 只用LEDE
+又遇到了如下问题&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;LEDE的固件是随便找的 可能有安全问题&lt;/li&gt;
+&lt;li&gt;LEDE固件不能使用Openwrt的源&lt;/li&gt;
+&lt;li&gt;LEDE固件因为是随便找的 结果我想要用某些功能无法完成&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;种种问题 所以我决定移除这套方案&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;Openwrt&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;移除上一套方案后 想直接裸机使用Openwrt
+所以就更换了硬盘 使用msata接口的三星PM810 32G
+更换了一条海力士的4G内存条 这样才能物尽其用&lt;/p&gt;
+&lt;p&gt;Openwrt有一个squashfs格式和ext4格式
+前者我在硬路由上使用 软路由我决定使用后者
+使用官方固件我成功获取了ipv6地址&lt;/p&gt;
+&lt;p&gt;官方安装之后有如下问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Openwrt默认安装完不会占用整个硬盘空间&lt;/li&gt;
+&lt;li&gt;Openwrt提供v2ray的维护者并不打算支持v2rayN提供的订阅格式&lt;/li&gt;
+&lt;li&gt;Openwrt提供的ss/v2ray的方案都没有lean提供的ssr-plus好用&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;解决办法如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;第一个问题解决方案就是用Ubuntu live启动之后
+用fdisk删除存放分区 再重新建立分区
+起始的offset一致 不要抹去分区签名
+就可以完全扩容了&lt;/li&gt;
+&lt;li&gt;第二个问题 无解 可以修改源码&lt;/li&gt;
+&lt;li&gt;第三个问题 可以选择移植ssr-plus到Openwrt
+也可以选择使用其他的链接方案&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;总之解决方案都是需要自己移植/编译
+所以我选择放弃&lt;/p&gt;
+&lt;h4&gt;&lt;strong&gt;lean&apos;s LEDE&lt;/strong&gt;&lt;/h4&gt;
+&lt;p&gt;反正都需要编译了 索性就选择lean&apos;s LEDE&lt;/p&gt;
+&lt;p&gt;编译时候遇见的问题如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;产生uefi启动的img并不能良好启动&lt;/li&gt;
+&lt;li&gt;想直接扩容超过4G可能会超过U盘上fat32单个文件大小限制&lt;/li&gt;
+&lt;li&gt;默认参数不支持ipv6 需要手工配置开启&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;最终我选择了使用传统引导和分区为2Gb的方案
+然后再利用扩容的方法使其完整使用硬盘&lt;/p&gt;
+&lt;p&gt;本来我在固件中选择编译了Docker
+结果我发现我这么多设备 我要用一个路由器去跑docker？
+再想到我学长的话 - &lt;strong&gt;『路由器核心设备，勿动』&lt;/strong&gt;
+遂放弃并且移除相关功能&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;../../assets/lede_show.png&quot; alt=&quot;lede_show&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;我写了一个&lt;a href=&quot;https://github.com/Rabenda/lean-lede-x64&quot;&gt;相关脚本合集&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;然后我写了一个&lt;a href=&quot;https://raw.githubusercontent.com/Rabenda/lean-lede-x64/master/Dockerfile&quot;&gt;Dockerfile&lt;/a&gt;
+可以直接docker build生产LEDE-x64固件&lt;/p&gt;
+&lt;p&gt;后来使用&lt;a href=&quot;https://github.com/Rabenda/lean-lede-x64/actions&quot;&gt;Github Actions&lt;/a&gt;生成固件&lt;/p&gt;
+&lt;p&gt;生成的 &lt;code&gt;img&lt;/code&gt; 固件可以直接更新系统&lt;/p&gt;
+&lt;h3&gt;&lt;strong&gt;结语&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&amp;lt;font size=6&amp;gt;少折腾路由器 越折腾你断网越久.jpg&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;p&gt;以上&lt;/p&gt;
+</content:encoded><category>Openwrt</category><category>lean&apos;s lede</category><category>x86</category><category>ACRH17</category><category>phicomm-k1</category><author>Typography</author></item><item><title>Surge mac for v2ray</title><link>https://revysr.github.io/posts/20191029-surge-mac-for-v2ray/</link><guid isPermaLink="true">https://revysr.github.io/posts/20191029-surge-mac-for-v2ray/</guid><pubDate>Tue, 29 Oct 2019 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;SSR&lt;/h3&gt;
+&lt;p&gt;之前在朋友家里被骗合购&lt;a href=&quot;https://nssurge.com/&quot;&gt;Surge for mac&lt;/a&gt; 此君说surge支持SSR&lt;/p&gt;
+&lt;p&gt;然后我就买了 发现想要支持ssr需要使用surge的&lt;a href=&quot;https://medium.com/@Blankwonder/surge-mac-new-features-external-proxy-provider-375e0e9ea660&quot;&gt;External Proxy Provider&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个功能按下暂且不表&lt;/p&gt;
+&lt;h3&gt;v2ray&lt;/h3&gt;
+&lt;p&gt;又查了一下v2ray支持 发现&lt;a href=&quot;https://1991421.cn/2019/02/09/1f6ba7db/&quot;&gt;这篇博客&lt;/a&gt;有相关说明3.3.1 beta版有支持 遂更新&lt;/p&gt;
+&lt;p&gt;然后写了一个v2ray订阅转surge配置的&lt;a href=&quot;https://gist.github.com/Rabenda/9ce23f6eb8ebaf8d018d8285390510d1&quot;&gt;脚本&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;支持&lt;a href=&quot;https://xn--i2ru8q2qg.com/&quot;&gt;npsboost&lt;/a&gt;和&lt;a href=&quot;https://wdnmd.network&quot;&gt;wdnmd.network&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;· 关于surge mac支持v2ray协议配置&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Supports VMess proxy protocol.
+vmess-proxy= vmess, example.com, 443, username = 12345678-abcd-1234-1234-47ffca0ce229, ws=true, tls=true, ws-path=/v2, ws-headers=X-Header-1:value|X-Header-2:value
+All proxy options for TLS proxy are available. Please note that if you use the &apos;Host&apos; header to override the default header, you may need to override the &apos;Origin&apos; header to get rid of the 403 error.
+Web-socket and TLS options would degrade performance. Only enable when necessary.
+Surge only supports chacha20-poly1305 encryption algorithm. Please make sure the server supports it. We have no plan to implement other ciphers.
+Snell and shadowsocks are still the most recommended protocols.&lt;/p&gt;
+&lt;/blockquote&gt;
+</content:encoded><category>v2ray</category><category>surge</category><author>Typography</author></item><item><title>Ryzen-Machine with Hyper-V</title><link>https://revysr.github.io/posts/20191025-ryzen-machine/</link><guid isPermaLink="true">https://revysr.github.io/posts/20191025-ryzen-machine/</guid><pubDate>Fri, 25 Oct 2019 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;开宗明义&lt;/h3&gt;
+&lt;p&gt;&amp;lt;font size=8&amp;gt;台式机真香&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;h3&gt;现行配置&lt;/h3&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;分类&lt;/th&gt;
+&lt;th&gt;型号&lt;/th&gt;
+&lt;th&gt;价格&lt;/th&gt;
+&lt;th&gt;购买链接&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;CPU&lt;/td&gt;
+&lt;td&gt;AMD 锐龙5 2600 处理器 (r5) 6核12线程&lt;/td&gt;
+&lt;td&gt;板U套装&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/7115861.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;主板&lt;/td&gt;
+&lt;td&gt;微星(MSI)B450M MORTAR MAX迫击炮&lt;/td&gt;
+&lt;td&gt;1479&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100007256670.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;电源&lt;/td&gt;
+&lt;td&gt;长城(GreatWall)额定450W G4全模组台式机电源&lt;/td&gt;
+&lt;td&gt;309&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4183438.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GPU&lt;/td&gt;
+&lt;td&gt;GIGABYTE GeForce GTX 1660 GAMING OC 6G&lt;/td&gt;
+&lt;td&gt;1599&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100002520273.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;机箱&lt;/td&gt;
+&lt;td&gt;乔思伯(JONSBO)U4 白色 ATX机箱&lt;/td&gt;
+&lt;td&gt;242&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4209217.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;网卡&lt;/td&gt;
+&lt;td&gt;Intel I350-T4V2 /X1PCI-E四口千兆服务器网卡&lt;/td&gt;
+&lt;td&gt;239&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.taobao.com/item.htm?id=564875543880&quot;&gt;淘宝&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;内存&lt;/td&gt;
+&lt;td&gt;威刚(ADATA)DDR4 2666 16GB台式机内存 万紫千红&lt;/td&gt;
+&lt;td&gt;469/399&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100000626454.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;十铨 DDR4 2400 8Gx2&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;以物换物&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;硬盘&lt;/td&gt;
+&lt;td&gt;Western Digital Blue SN550&lt;/td&gt;
+&lt;td&gt;899&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100005926991.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;TOSHIBA 500G RD500&lt;/td&gt;
+&lt;td&gt;699&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100009602290.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;光威(Gloway)SSD固态硬盘&lt;/td&gt;
+&lt;td&gt;559/369/269&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/3639922.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;希捷酷狼IronWolf系列2TB 64MB 5900RPM&lt;/td&gt;
+&lt;td&gt;569&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4058196.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;td&gt;合计&lt;/td&gt;
+&lt;td&gt;8100&lt;/td&gt;
+&lt;td&gt;--&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3&gt;预算配置&lt;/h3&gt;
+&lt;h4&gt;预算&lt;/h4&gt;
+&lt;p&gt;人民币 2600元&lt;/p&gt;
+&lt;h4&gt;配置&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;型号&lt;/th&gt;
+&lt;th&gt;价格&lt;/th&gt;
+&lt;th&gt;购买链接&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;AMD 锐龙5 2600 处理器 (r5) 6核12线程&lt;/td&gt;
+&lt;td&gt;板U套装&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/7115861.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;微星(MSI)B450M MORTAR MAX迫击炮&lt;/td&gt;
+&lt;td&gt;1479&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100007256670.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;长城(GreatWall)额定450W G4全模组台式机电源&lt;/td&gt;
+&lt;td&gt;309&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4183438.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;威刚(ADATA)DDR4 2666 16GB台式机内存 万紫千红&lt;/td&gt;
+&lt;td&gt;469&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100000626454.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;乔思伯(JONSBO)V4 银色 MINI-MATX机箱 (已拆)&lt;/td&gt;
+&lt;td&gt;229&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/922044.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GT 710 (已拆)&lt;/td&gt;
+&lt;td&gt;100&lt;/td&gt;
+&lt;td&gt;线下&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4&gt;系统&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.gentoo.org&quot;&gt;Gentoo&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;中途还发现了nvme的&lt;a href=&quot;https://bugzilla.redhat.com/show_bug.cgi?id=1699571&quot;&gt;bug&lt;/a&gt;(我哭了 退货两块硬盘才发现的)&lt;/p&gt;
+&lt;p&gt;发现了这个bug后改用了Windows 10&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3&gt;2020/03/02 附记&lt;/h3&gt;
+&lt;p&gt;开启了主板上面的&lt;code&gt;Game Boost&lt;/code&gt; 超了450MHz&lt;/p&gt;
+&lt;p&gt;把以前笔记本上的&lt;code&gt;Windows 10&lt;/code&gt;挪到了台式机上&lt;/p&gt;
+&lt;p&gt;加装了以下硬件&lt;/p&gt;
+&lt;h4&gt;追加配置&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;型号&lt;/th&gt;
+&lt;th&gt;价格&lt;/th&gt;
+&lt;th&gt;购买链接&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Western Digital Blue SN550&lt;/td&gt;
+&lt;td&gt;899&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100005926991.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;TOSHIBA 500G RD500&lt;/td&gt;
+&lt;td&gt;699&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100009602290.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;GIGABYTE GeForce GTX 1660 GAMING OC 6G&lt;/td&gt;
+&lt;td&gt;1599&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100002520273.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;威刚(ADATA)DDR4 2666 16GB台式机内存 万紫千红&lt;/td&gt;
+&lt;td&gt;399&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/100000626454.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;乔思伯(JONSBO)U4 白色 ATX机箱&lt;/td&gt;
+&lt;td&gt;242&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4209217.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4&gt;Hyper-V&lt;/h4&gt;
+&lt;p&gt;开启了Hyper-V 上面跑着一堆虚拟机 一个字 &lt;code&gt;爽&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;../../assets/Hyper-V_Show.png&quot; alt=&quot;Hyper-V_Show&quot; /&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;机器&lt;/th&gt;
+&lt;th&gt;用途&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Gentoo&lt;/td&gt;
+&lt;td&gt;日常使用的Linux&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Ubuntu_Build&lt;/td&gt;
+&lt;td&gt;专门用来编译 包括路由器OpenWrt和一些奇怪的东西&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Win10LTSC&lt;/td&gt;
+&lt;td&gt;专门用于挂BT 直通进去一块酷鱼2T&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;VoidLinux&lt;/td&gt;
+&lt;td&gt;正在玩的系统 想体验一把MUSL的与众不同&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;DockerDesktopVM&lt;/td&gt;
+&lt;td&gt;Docker的执行体&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;LFS&lt;/td&gt;
+&lt;td&gt;为了看一遍LFS book的东西 现在碍于没有initramfs 无法正确挂载硬盘&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3&gt;2020/03/17 附记&lt;/h3&gt;
+&lt;p&gt;我想要桥接Hyper-V网卡 在网络设置里设置桥接已经让我的 &lt;code&gt;Windows 10&lt;/code&gt; &lt;code&gt;蓝屏/绿屏&lt;/code&gt;很多次了 总是&lt;code&gt;bridge.sys&lt;/code&gt; &lt;code&gt;ndis.sys&lt;/code&gt;引起的&lt;/p&gt;
+&lt;p&gt;所以我选择买一个4口 &lt;code&gt;pcie x1&lt;/code&gt; 网卡 型号 &lt;code&gt;I350-T4V2&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;我还上了一块 &lt;code&gt;酷鱼 2T&lt;/code&gt; 用来挂BT&lt;/p&gt;
+&lt;p&gt;还有三块 &lt;code&gt;光威悍将&lt;/code&gt; &lt;code&gt;480G/480G/360G&lt;/code&gt; 固态用来直通进去装虚拟机系统&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;型号&lt;/th&gt;
+&lt;th&gt;价格&lt;/th&gt;
+&lt;th&gt;购买链接&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Intel I350-T4V2 /X1PCI-E四口千兆服务器网卡&lt;/td&gt;
+&lt;td&gt;239&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.taobao.com/item.htm?id=564875543880&quot;&gt;淘宝&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;光威(Gloway)SSD固态硬盘&lt;/td&gt;
+&lt;td&gt;559/369/269&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/3639922.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;希捷酷狼IronWolf系列2TB 64MB 5900RPM&lt;/td&gt;
+&lt;td&gt;569&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://item.jd.com/4058196.html&quot;&gt;京东&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;最初我以为&lt;code&gt;Hyper-V&lt;/code&gt;的网卡是&lt;code&gt;PCIE&lt;/code&gt;直通 结果是通给&lt;code&gt;Hyper-V&lt;/code&gt; 创建的Switch&lt;/p&gt;
+&lt;p&gt;所以四口其实没什么用处 不过我还是单独把几个口分给常用的虚拟机&lt;/p&gt;
+&lt;p&gt;防止网络压力过大&lt;/p&gt;
+&lt;h3&gt;2020/03/26 附记&lt;/h3&gt;
+&lt;p&gt;拿了一个单条DDR3 16G 1600笔记本内存 换了 两条十铨DDR4 8G 2400内存条&lt;/p&gt;
+&lt;h3&gt;叛教宣言&lt;/h3&gt;
+&lt;p&gt;总之 我叛教了(Windows 真香.jpg)&lt;/p&gt;
+</content:encoded><category>Ryzen</category><category>RD500</category><category>SN550</category><category>Windows 10</category><category>Hyper-V</category><author>Typography</author></item><item><title>ThinkPad x1 carbon 6th</title><link>https://revysr.github.io/posts/20190728-new-laptop/</link><guid isPermaLink="true">https://revysr.github.io/posts/20190728-new-laptop/</guid><pubDate>Sun, 28 Jul 2019 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;开宗明义&lt;/h3&gt;
+&lt;p&gt;&amp;lt;font size=6&amp;gt;&lt;strong&gt;没事就不要碰笔记本，更不要碰商务本&lt;/strong&gt;&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;h3&gt;起因&lt;/h3&gt;
+&lt;p&gt;好久没有写博文了，最近在&lt;code&gt;闲鱼&lt;/code&gt;上买了一个&lt;code&gt;ThinkPad X1 Carbon 6th&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这机器使我挺恼火了&lt;/p&gt;
+&lt;h3&gt;问题&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;首先是2K屏幕，使用&lt;code&gt;Linux&lt;/code&gt;极其不方便，所以我去买了个1080P屏幕换&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;结果拆解的时候发现如下问题&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;电池表面有严重的人为划痕，电池螺丝滑丝&lt;/li&gt;
+&lt;li&gt;安装的PM961缺失原装散热贴，怀疑是更换过&lt;/li&gt;
+&lt;li&gt;2K的屏幕是副厂件&lt;/li&gt;
+&lt;li&gt;之前买了海康C2000 Pro 2TB版 发现是双面SSD 这机器就能安装单面SSD&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;使用中发现如下问题&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;买了lexer的ssd安装在wwan位置 发现FreeBSD对于nvme固态兼容性有问题&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;用起来感觉真的很憋屈，心疼钱&lt;/p&gt;
+&lt;p&gt;生活不易，猫猫叹气&lt;/p&gt;
+&lt;h3&gt;后记&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;终于出了这破机器 让我开心了一下&lt;/li&gt;
+&lt;li&gt;出这机器的时候 顺丰把我两个屏幕都弄碎了 赔了1500&lt;/li&gt;
+&lt;/ul&gt;
+</content:encoded><category>laptop</category><category>ThinkPad</category><category>x1c_6th</category><category>FreeBSD</category><category>闲鱼</category><author>Typography</author></item><item><title>个人的FreeBSD的折腾笔记</title><link>https://revysr.github.io/posts/20181214-install-freebsd/</link><guid isPermaLink="true">https://revysr.github.io/posts/20181214-install-freebsd/</guid><pubDate>Fri, 14 Dec 2018 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;开宗明义&lt;/h3&gt;
+&lt;p&gt;&amp;lt;font size=6&amp;gt;&lt;strong&gt;Unix系统就不要搞Xorg这种幺蛾子了&lt;/strong&gt;&amp;lt;/font&amp;gt;&lt;/p&gt;
+&lt;h3&gt;硬件配置&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ThinkPad t440s&lt;/li&gt;
+&lt;li&gt;ThinkPad t450s（魔改换主板）&lt;/li&gt;
+&lt;li&gt;ThinkPad x1 carbon 6th&lt;/li&gt;
+&lt;li&gt;Hyper-V Virtual Machine 9.0&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;为什么选用tp &lt;s&gt;(因为信仰)&lt;/s&gt; 其实是因为FreeBSD很挑剔硬件 俺不会攒机 直接买TP省心
+原来是t440s 后来看到ddr3内存有单条16g 奈何4th的intel不支持单条16g所以只能换主板和内存条了 &lt;s&gt;(x)&lt;/s&gt;
+后来买了x1c 6th 之后就发生了{% post_link new-laptop 闲鱼售卖 %}
+在之后类Unix系统都安装到Hyper-V里面 省的折腾Xorg&lt;/p&gt;
+&lt;h3&gt;安装&lt;/h3&gt;
+&lt;p&gt;首先是选择安装镜像的问题 FreeBSD官方提供的ISO并不是混合启动盘 所以需要U盘安装的需要下载img后缀&lt;a href=&quot;https://download.freebsd.org/ftp/releases/amd64/amd64/ISO-IMAGES/12.0/&quot;&gt;镜像&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;ToDo&lt;/h3&gt;
+&lt;p&gt;// ToDo&lt;/p&gt;
+&lt;p&gt;纪念我2017年年末入坑FreeBSD&lt;/p&gt;
+&lt;p&gt;先占坑，以后填&lt;/p&gt;
+</content:encoded><category>FreeBSD</category><category>OS</category><category>ThinkPad</category><category>x1c_6th</category><category>laptop</category><author>Typography</author></item><item><title>Oracle数据库运行在Docker里的相关问题</title><link>https://revysr.github.io/posts/20180510-docker-image-oracle-database-install/</link><guid isPermaLink="true">https://revysr.github.io/posts/20180510-docker-image-oracle-database-install/</guid><pubDate>Thu, 10 May 2018 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;&lt;a href=&quot;https://github.com/MaksymBilenko/docker-oracle-12c&quot;&gt;MaksymBilenko/docker-oracle-12c&lt;/a&gt;
+以上是oracle-database 12c的Docker镜像 使用说明在项目中&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Docker_(software)&quot;&gt;Docker&lt;/a&gt; 镜像适应于 &lt;a href=&quot;https://en.wikipedia.org/wiki/Linux&quot;&gt;Linux&lt;/a&gt; / &lt;a href=&quot;https://en.wikipedia.org/wiki/MacOS&quot;&gt;macOS&lt;/a&gt; / &lt;a href=&quot;https://en.wikipedia.org/wiki/Microsoft_Windows&quot;&gt;Windows&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;Docker Oracle Database Image 下载&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;docker pull sath89/oracle-12c
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;简略使用方法:&lt;/h3&gt;
+&lt;p&gt;以下内容需要在宿主机(host)输入&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 创建oracle-database容器实例并且在后台以守护进程运行 (一次性命令 删除实例后可以重新运行生成新实例)
+docker run --name oracle_database -d -p 8080:8080 -p 1521:1521 sath89/oracle-12c
+# 进入docker-oracle-database容器终端
+docker exec -it oracle_database /bin/bash 
+# 终止运行docker-oracle-database容器
+docker stop oracle_database
+# 启动运行docker-oracle-database容器
+docker start oracle_database
+# 重新启动docker-oracle-database容器
+docker restart oracle_database
+# 删除此docker-oracle-database容器实例
+docker rm oracle_database
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;万能帮助方法:&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;docker --help
+docker [COMMAND] --help
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;获取更多关于docker的信息&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://docs.docker.com/&quot;&gt;点击前往 Docker Docs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.runoob.com/docker/docker-tutorial.html&quot;&gt;菜鸟教程的 Docker 教程&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;For Windows users：(for neusoft&apos;s students)&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.runoob.com/docker/windows-docker-install.html&quot;&gt;请点击阅读 如何在Windows上安装Docker&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;For Windows 10 users：&lt;/h4&gt;
+&lt;p&gt;-- Update: 2020.12.29 --&lt;/p&gt;
+&lt;p&gt;Docker已经可以和VMware/Virtualbox共存&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;TL;DR 总之就是你开启了Docker 可能会与你的大数据项目的虚拟机不兼容&lt;/p&gt;
+&lt;p&gt;使用Docker时候可能会修改你的Windows虚拟架构 启动组件 &lt;a href=&quot;https://en.wikipedia.org/wiki/Hyper-V&quot;&gt;Hyper-V&lt;/a&gt;
+『Warning』启动Hyper-V组件会使你的Windows也虚拟在Hyper-V架构上面
+可能会有部分性能损失（估计在10%-20%左右）
+而且会和现有的半虚拟化冲突（简而言之就是开启之后无法使用 &lt;a href=&quot;https://en.wikipedia.org/wiki/VMware_Workstation&quot;&gt;VMware&lt;/a&gt; &amp;amp; &lt;a href=&quot;https://en.wikipedia.org/wiki/VirtualBox&quot;&gt;VirtualBox&lt;/a&gt;）
+（不建议VirtualBox启动软件虚拟化 因为那样虚拟机的性能极低 而且无法虚拟64位系统）&lt;/p&gt;
+&lt;p&gt;2020/03/03 更新：
+在未来的&lt;a href=&quot;https://docs.microsoft.com/en-us/windows-insider/at-home/whats-new-wip-at-home-20h1&quot;&gt;Windows 10 20H1&lt;/a&gt;/&lt;a href=&quot;https://blogs.vmware.com/workstation/2020/01/vmware-workstation-tech-preview-20h1.html&quot;&gt;VMware 20H1&lt;/a&gt;/&lt;a href=&quot;https://forums.virtualbox.org/viewtopic.php?f=6&amp;amp;t=90853&quot;&gt;VirtualBox 6.0&lt;/a&gt; Hyper-V与其他虚拟化软件相兼容&lt;/p&gt;
+&lt;h3&gt;以下是FAQ:&lt;/h3&gt;
+&lt;h4&gt;Docker 下载&lt;/h4&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.docker.com/community-edition&quot;&gt;Docker-ce版本下载&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;Docker 安装&lt;/h4&gt;
+&lt;p&gt;请选择对应系统安装教程&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;http://www.runoob.com/docker/windows-docker-install.html&quot;&gt;Windows安装&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;http://www.runoob.com/docker/macos-docker-install.html&quot;&gt;macOS安装&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;http://www.runoob.com/docker/ubuntu-docker-install.html&quot;&gt;Ubuntu安装&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;http://www.runoob.com/docker/centos-docker-install.html&quot;&gt;CentOS安装&lt;/a&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4&gt;Docker-image下载速度特别慢？！&lt;/h4&gt;
+&lt;p&gt;以下三种方法可选择&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.jianshu.com/p/26d0ebd86673&quot;&gt;为 Docker 设置代理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/rofl0r/proxychains-ng&quot;&gt;proxychains-ng 强制代理软件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://yq.aliyun.com/articles/29941&quot;&gt;aliyun mirrors 镜像加速&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;运行完命令 无反应&lt;/h4&gt;
+&lt;p&gt;运行完&lt;code&gt;docker run --name oracle_database -d -p 8080:8080 -p 1521:1521 sath89/oracle-12c&lt;/code&gt; 就返回一串随机数&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;首先你需要知道 &lt;code&gt;-d&lt;/code&gt; 参数的意思是后台运行 所以需要用 &lt;code&gt;docker exec&lt;/code&gt; 进入容器&lt;/li&gt;
+&lt;li&gt;执行 &lt;code&gt;docker exec -it oracle_database /bin/bash&lt;/code&gt; 就可以进入容器终端了&lt;/li&gt;
+&lt;li&gt;此时执行 &lt;code&gt;sqlplus&lt;/code&gt; 就可以连接数据库了&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Oracle数据库账号密码是多少？&lt;/h4&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Account&lt;/th&gt;
+&lt;th&gt;Password&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SYSTEM&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;oracle&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SYS&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;oracle&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;SCOTT&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;tiger&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h4&gt;怎么退出容器终端啊&lt;/h4&gt;
+&lt;p&gt;在终端输入命令&lt;code&gt;exit&lt;/code&gt; 按Enter就可以退出终端了&lt;/p&gt;
+&lt;h4&gt;如何终止容器的运行？&lt;/h4&gt;
+&lt;p&gt;在终端里输入 &lt;code&gt;docker stop oracle_database&lt;/code&gt; 就可以终止容器运行了&lt;/p&gt;
+</content:encoded><category>docker</category><category>oracle</category><author>Typography</author></item><item><title>sunpinyin双拼问题</title><link>https://revysr.github.io/posts/20180510-ubuntu-17-10-sunpinyin-shuangpin/</link><guid isPermaLink="true">https://revysr.github.io/posts/20180510-ubuntu-17-10-sunpinyin-shuangpin/</guid><pubDate>Thu, 10 May 2018 00:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;为什么不用sogou拼音&lt;/h3&gt;
+&lt;p&gt;我脑抽 fcitx死活玩不对 而且听某人说 ibus和gnome集成的不错&lt;/p&gt;
+&lt;h3&gt;Sunpinyin有什么问题&lt;/h3&gt;
+&lt;p&gt;默认情况下 安装ibus-sunpinyin 是无法打开preference的&lt;/p&gt;
+&lt;h3&gt;原因&lt;/h3&gt;
+&lt;p&gt;就是缺个依赖包 而且这个依赖包在14.04存在 之后的版本莫名其妙的就删除了&lt;/p&gt;
+&lt;p&gt;缺个&lt;a href=&quot;https://packages.ubuntu.com/search?suite=default&amp;amp;section=all&amp;amp;arch=any&amp;amp;keywords=python-ibus&amp;amp;searchon=names&quot;&gt;python-ibus&lt;/a&gt;的包
+信息来源 &lt;a href=&quot;https://forum.ubuntu.com.cn/viewtopic.php?t=468324&quot;&gt;Ubuntu中文论坛&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;解决方法&lt;/h3&gt;
+&lt;p&gt;安装安装python-ibus&lt;/p&gt;
+&lt;h3&gt;叛教 libpinyin赛高&lt;/h3&gt;
+&lt;p&gt;不到五分钟 我被安利新的输入法了
+我用了&lt;a href=&quot;https://github.com/libpinyin/ibus-libpinyin&quot;&gt;ibus-libpinyin&lt;/a&gt;&lt;/p&gt;
+</content:encoded><category>Ubuntu</category><category>OS</category><category>pinyin</category><category>Ubuntu 17.10</category><author>Typography</author></item></channel></rss>
